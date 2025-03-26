@@ -40,7 +40,7 @@ const MonsterViewer: React.FC = () => {
             <p>
               <strong>CA:</strong>{' '}
               {Array.isArray(randomMonster.armor_class)
-                ? randomMonster.armor_class.map((ac, i) => `${ac.value} (${ac.type})`).join(', ')
+                ? randomMonster.armor_class.map((ac) => `${ac.value} (${ac.type})`).join(', ')
                 : randomMonster.armor_class}
             </p>
             <p><strong>HP:</strong> {randomMonster.hit_points} ({randomMonster.hit_dice})</p>
@@ -63,7 +63,7 @@ const MonsterViewer: React.FC = () => {
               })}
             </p>
 
-            {randomMonster.actions?.length > 0 && (
+            {randomMonster.actions && randomMonster.actions.length > 0 && (
               <div>
                 <h4 style={styles.sectionTitle}>Ações</h4>
                 {randomMonster.actions.map((action, index) => (
@@ -74,7 +74,7 @@ const MonsterViewer: React.FC = () => {
               </div>
             )}
 
-            {randomMonster.special_abilities?.length > 0 && (
+            {randomMonster.special_abilities && randomMonster.special_abilities.length > 0 && (
               <div>
                 <h4 style={styles.sectionTitle}>Habilidades Especiais</h4>
                 {randomMonster.special_abilities.map((ability, index) => (

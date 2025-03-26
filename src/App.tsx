@@ -1,4 +1,3 @@
-import React from 'react';
 import MonsterViewer from './components/MonsterViewer';
 
 function App() {
