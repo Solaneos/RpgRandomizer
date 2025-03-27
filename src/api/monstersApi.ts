@@ -31,7 +31,19 @@ export class MonstersAPI {
   }
 
   static async fetchMonsterDetails(index: string): Promise<MonsterDetails> {
+    const cacheKey = `monster_${index}`;
+
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+
     const response = await fetch(`${API_BASE}/monsters/${index}`);
-    return response.json();
+    if (!response.ok) throw new Error('Erro ao buscar monstro');
+    const data = await response.json();
+
+    localStorage.setItem(cacheKey, JSON.stringify(data));
+
+    return data;
   }
 }
