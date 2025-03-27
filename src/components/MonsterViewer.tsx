@@ -50,19 +50,19 @@ const MonsterViewer: React.FC = () => {
             <p><strong>Desafio:</strong> {randomMonster.challenge_rating}</p>
 
             <p><strong>Força:</strong> {randomMonster.strength}</p>
-            <p><strong>Skill:</strong> {randomMonster.dexterity * 4}</p>
+            <p><strong>Perícia:</strong> {randomMonster.dexterity * 4}</p>
 
             <p>
-              <strong>Velocidade:</strong>{' '}
+              <strong>Velocidade:</strong>
               {Object.entries(randomMonster.speed).map(([type, value]) => {
                 const label = translate(translations.speed, type);
                 const numberMatch = value.match(/\d+/);
                 const feet = numberMatch ? parseFloat(numberMatch[0]) : null;
-                const meters = feet ? (feet * 0.3048).toFixed(1) + ' m' : value;
+                const meters = feet ? (feet * 0.3048).toFixed(1) + 'm' : value;
                 return (
-                  <span key={type}>
-                    {label}: {meters}{' '}
-                  </span>
+                  <div key={type}>
+                    {label}: {meters}
+                  </div>
                 );
               })}
             </p>
@@ -88,6 +88,17 @@ const MonsterViewer: React.FC = () => {
                 ))}
               </div>
             )}
+
+            {randomMonster.image && (
+              <div style={{ marginTop: '16px' }}>
+                <img
+                  src={`https://www.dnd5eapi.co${randomMonster.image}`}
+                  alt={randomMonster.name}
+                  style={{ maxWidth: '100%', height: 'auto' }}
+                />
+              </div>
+            )}
+
           </div>
         )}
       </div>

@@ -20,6 +20,7 @@ export type MonsterDetails = {
   speed: { [key: string]: string };
   actions?: { name: string; desc: string }[];
   special_abilities?: { name: string; desc: string }[];
+  image?: string;
 };
 
 export class MonstersAPI {
