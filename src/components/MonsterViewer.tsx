@@ -2,12 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { MonstersAPI, MonsterBasic, MonsterDetails } from '../api/monstersApi';
 import { translations, translate } from '../utils/translations';
 import { monsterNames } from '../utils/monsterNames';
+import { getMonsterFlavorText } from '../api/openAi';
 
 const MonsterViewer: React.FC = () => {
   const [monstersList, setMonstersList] = useState<MonsterBasic[]>([]);
   const [randomMonster, setRandomMonster] = useState<MonsterDetails | null>(null);
   const [loading, setLoading] = useState(false);
-
+  const [promptInput, setPromptInput] = useState('');
+  const [flavorText, setFlavorText] = useState<string | null>(null);
+  const customPrompt = randomMonster
+  ? promptInput || `Me dê uma descrição de um monstro chamado "${randomMonster.name}".`
+  : '';
+  
   useEffect(() => {
     MonstersAPI.fetchMonsterList().then(setMonstersList);
   }, []);
@@ -24,10 +30,26 @@ const MonsterViewer: React.FC = () => {
     setLoading(false);
   };
 
+  useEffect(() => {
+    if (randomMonster?.name) {
+      getMonsterFlavorText(customPrompt).then(setFlavorText);
+    }
+  }, [randomMonster]);
+
   return (
     <div style={styles.wrapper}>
       <div style={styles.container}>
         <h2 style={styles.title}>Encontro Aleatório de Monstro</h2>
+
+        <div style={{ marginBottom: '12px' }}>
+          <input
+            type="text"
+            value={promptInput}
+            onChange={(e) => setPromptInput(e.target.value)}
+            placeholder="Contexto"
+            style={{ width: '100%', padding: '8px', fontSize: '16px' }}
+          />
+        </div>
 
         <button onClick={getRandomMonster} style={styles.button}>
           {loading ? 'Carregando...' : 'Gerar Monstro'}
@@ -67,6 +89,13 @@ const MonsterViewer: React.FC = () => {
               })}
             </p>
 
+            {flavorText && (
+              <div style={{ marginTop: '16px' }}>
+                <h4>Descrição IA:</h4>
+                <p>{flavorText}</p>
+              </div>
+            )}
+
             {randomMonster.actions && randomMonster.actions.length > 0 && (
               <div>
                 <h4 style={styles.sectionTitle}>Ações</h4>
@@ -98,6 +127,7 @@ const MonsterViewer: React.FC = () => {
                 />
               </div>
             )}
+
 
           </div>
         )}
