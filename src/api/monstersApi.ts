@@ -17,7 +17,7 @@ export type MonsterDetails = {
   challenge_rating: number;
   strength: number;
   dexterity: number;
-  speed: { [key: string]: string }; // walk, fly, swim, etc.
+  speed: { [key: string]: string };
   actions?: { name: string; desc: string }[];
   special_abilities?: { name: string; desc: string }[];
 };

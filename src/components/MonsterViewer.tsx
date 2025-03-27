@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { MonstersAPI, MonsterBasic, MonsterDetails } from '../api/monstersApi';
+import { translations, translate } from '../utils/translations';
+import { monsterNames } from '../utils/monsterNames';
 
 const MonsterViewer: React.FC = () => {
   const [monstersList, setMonstersList] = useState<MonsterBasic[]>([]);
@@ -33,10 +35,11 @@ const MonsterViewer: React.FC = () => {
 
         {randomMonster && (
           <div style={styles.card}>
-            <h3 style={styles.monsterName}>{randomMonster.name}</h3>
-            <p><strong>Tamanho:</strong> {randomMonster.size}</p>
-            <p><strong>Tipo:</strong> {randomMonster.type}</p>
-            <p><strong>Alinhamento:</strong> {randomMonster.alignment}</p>
+            <h3>{translate(monsterNames, randomMonster.name)}</h3>
+            <p><strong>Tamanho:</strong> {translate(translations.size, randomMonster.size)}</p>
+            <p><strong>Tipo:</strong> {translate(translations.type, randomMonster.type)}</p>
+            <p><strong>Alinhamento:</strong> {translate(translations.alignment, randomMonster.alignment)}</p>
+
             <p>
               <strong>CA:</strong>{' '}
               {Array.isArray(randomMonster.armor_class)
@@ -52,12 +55,13 @@ const MonsterViewer: React.FC = () => {
             <p>
               <strong>Velocidade:</strong>{' '}
               {Object.entries(randomMonster.speed).map(([type, value]) => {
+                const label = translate(translations.speed, type);
                 const numberMatch = value.match(/\d+/);
                 const feet = numberMatch ? parseFloat(numberMatch[0]) : null;
                 const meters = feet ? (feet * 0.3048).toFixed(1) + ' m' : value;
                 return (
                   <span key={type}>
-                    {type}: {meters}{' '}
+                    {label}: {meters}{' '}
                   </span>
                 );
               })}
