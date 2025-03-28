@@ -1,4 +1,3 @@
-import MonsterImageChecker from './components/MonsterImageChecker';
 import MonsterViewer from './components/MonsterViewer';
 
 function App() {
