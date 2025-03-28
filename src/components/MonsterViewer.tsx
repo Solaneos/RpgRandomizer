@@ -39,6 +39,20 @@ const MonsterViewer: React.FC = () => {
     }
   }, [randomMonster]);
 
+  const hasLocalImage = (index: string) => {
+    const withoutImage = [ 'bat', 'cat', 'crab', 'deer', 'dire-wolf', 'draft-horse', 'giant-goat', 'druid', 'eagle', 'elephant', 'elk', 'frog', 'giant-ape', 'giant-badger',
+      'giant-bat', 'giant-boar', 'giant-centipede', 'giant-constrictor-snake', 'giant-crab', 'giant-crocodile', 'giant-eagle', 'giant-elk', 'giant-fire-beetle', 'giant-frog',
+      'giant-goat', 'giant-hyena', 'giant-lizard', 'giant-octopus', 'giant-owl', 'giant-poisonous-snake', 'giant-rat', 'giant-rat-diseased', 'giant-scorpion', 'giant-sea-horse', 'giant-shark',
+      'giant-spider', 'giant-toad', 'giant-vulture', 'giant-wasp', 'giant-weasel', 'giant-wolf-spider', 'goat', 'guard', 'hawk', 'hunter-shark', 'hyena', 'killer-whale', 'jackal', 'knight', 'lemure',
+      'lion', 'lizard', 'mage', 'mammoth', 'mule', 'octopus', 'owl', 'panther', 'poisonous-snake', 'polar-bear', 'pony', 'priest', 'quipper', 'rat', 'raven', 'reef-shark', 'rhinoceros',
+      'riding-horse', 'scorpion', 'sea-horse', 'spider', 'spy', 'succubus-incubus', 'swarm-of-bats', 'swarm-of-beetles', 'swarm-of-centipedes', 'swarm-of-insects', 'swarm-of-poisonous-snakes',
+      'swarm-of-quippers', 'swarm-of-rats', 'swarm-of-ravens', 'swarm-of-spiders', 'swarm-of-wasps', 'tiger', 'vulture', 'werebear-human', 'werebear-hybrid', 'wereboar-human', 'wereboar-hybrid',
+      'wererat-human', 'wererat-hybrid', 'weretiger-human', 'weretiger-hybrid', 'werewolf-human', 'werewolf-hybrid'
+    ];
+    return !withoutImage.includes(index);
+  };
+  
+
   return (
     <div style={styles.wrapper}>
       <div style={styles.container}>
@@ -49,8 +63,13 @@ const MonsterViewer: React.FC = () => {
             type="text"
             value={promptInput}
             onChange={(e) => setPromptInput(e.target.value)}
-            placeholder="Contexto"
-            style={{ width: "100%", padding: "8px", fontSize: "16px" }}
+            placeholder="Contexto do encontro para a IA"
+            style={{
+              width: "95%",
+              padding: "8px",
+              fontSize: "16px",
+              borderRadius: "8px",
+            }}
           />
         </div>
 
@@ -117,7 +136,9 @@ const MonsterViewer: React.FC = () => {
               {Object.entries(randomMonster.speed).map(([type, value]) => {
                 const label = translate(translations.speed, type);
                 const numberMatch =
-                  typeof value === 'string' ? value.match(/\d+/) : String(value).match(/\d+/);
+                  typeof value === "string"
+                    ? value.match(/\d+/)
+                    : String(value).match(/\d+/);
                 const feet = numberMatch ? parseFloat(numberMatch[0]) : null;
                 const meters = feet ? (feet * 0.3048).toFixed(1) + "m" : value;
                 return (
@@ -140,7 +161,7 @@ const MonsterViewer: React.FC = () => {
                 <h4 style={styles.sectionTitle}>Ações</h4>
                 {randomMonster.actions.map((action, index) => (
                   <div key={index}>
-                    <strong>{action.name}:</strong> {action.desc}
+                    <strong>{action.name}</strong>
                   </div>
                 ))}
               </div>
@@ -158,15 +179,18 @@ const MonsterViewer: React.FC = () => {
                 </div>
               )}
 
-            {randomMonster.image && (
-              <div style={{ marginTop: "16px" }}>
-                <img
-                  src={`https://www.dnd5eapi.co${randomMonster.image}`}
-                  alt={randomMonster.name}
-                  style={{ maxWidth: "100%", height: "auto" }}
-                />
-              </div>
-            )}
+            {randomMonster.image || hasLocalImage(randomMonster.index) ? (
+              <img
+                src={
+                  randomMonster.image
+                    ? `https://www.dnd5eapi.co${randomMonster.image}`
+                    : `/monsters/${randomMonster.index}.png`
+                }
+                alt={randomMonster.name}
+                style={{ maxWidth: "100%", height: "auto", marginTop: "16px" }}
+              />
+            ) : null}
+
           </div>
         )}
       </div>

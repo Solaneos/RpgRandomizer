@@ -7,6 +7,7 @@ export type MonsterBasic = {
 };
 
 export type MonsterDetails = {
+  index: string;
   name: string;
   size: string;
   type: string;
@@ -32,18 +33,20 @@ export class MonstersAPI {
 
   static async fetchMonsterDetails(index: string): Promise<MonsterDetails> {
     const cacheKey = `monster_${index}`;
-
+  
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
       return JSON.parse(cached);
     }
-
+  
     const response = await fetch(`${API_BASE}/monsters/${index}`);
     if (!response.ok) throw new Error('Erro ao buscar monstro');
     const data = await response.json();
-
-    localStorage.setItem(cacheKey, JSON.stringify(data));
-
-    return data;
-  }
+  
+    const monsterWithIndex = { ...data, index }; // 👈 adiciona a propriedade index
+  
+    localStorage.setItem(cacheKey, JSON.stringify(monsterWithIndex));
+  
+    return monsterWithIndex;
+  }  
 }
