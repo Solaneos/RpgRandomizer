@@ -3,8 +3,9 @@
 //const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
 
 export async function getMonsterFlavorText(prompt: string): Promise<string> {
-  console.log('[MOCK ATIVO] Prompt recebido:', prompt);
-
+  
+  var p = prompt
+  p.length
   // MOCK: texto simulado (você pode alterar esse conteúdo à vontade)
   return Promise.resolve(
     `Este monstro é conhecido por sua ferocidade nas regiões montanhosas. Dizem que suas garras afiadas são capazes de cortar até mesmo o aço.`

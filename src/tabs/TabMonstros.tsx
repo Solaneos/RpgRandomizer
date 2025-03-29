@@ -4,7 +4,7 @@ import { translations, translate } from "../utils/translations";
 import { monsterNames } from "../utils/monsterNames";
 import { getMonsterFlavorText } from "../api/openAi";
 
-const MonsterViewer: React.FC = () => {
+const TabMonstros: React.FC = () => {
   const [monstersList, setMonstersList] = useState<MonsterBasic[]>([]);
   const [randomMonster, setRandomMonster] = useState<MonsterDetails | null>(
     null
@@ -69,12 +69,15 @@ const MonsterViewer: React.FC = () => {
               padding: "8px",
               fontSize: "16px",
               borderRadius: "8px",
+              backgroundColor: "#111",     // fundo escuro
+              color: "#fff",               // texto branco
+              border: "1px solid #555",    // borda sutil
             }}
           />
         </div>
 
         <button onClick={getRandomMonster} style={styles.button}>
-          {loading ? "Carregando..." : "Gerar Monstro"}
+          {loading ? "Carregando..." : "GERAR MONSTRO"}
         </button>
 
         {randomMonster && (
@@ -131,7 +134,7 @@ const MonsterViewer: React.FC = () => {
               <strong>Perícia:</strong> {randomMonster.dexterity * 4}
             </p>
 
-            <p>
+            <div>
               <strong>Velocidade:</strong>
               {Object.entries(randomMonster.speed).map(([type, value]) => {
                 const label = translate(translations.speed, type);
@@ -147,7 +150,7 @@ const MonsterViewer: React.FC = () => {
                   </div>
                 );
               })}
-            </p>
+            </div>
 
             {flavorText && (
               <div style={{ marginTop: "16px" }}>
@@ -173,7 +176,7 @@ const MonsterViewer: React.FC = () => {
                   <h4 style={styles.sectionTitle}>Habilidades Especiais</h4>
                   {randomMonster.special_abilities.map((ability, index) => (
                     <div key={index}>
-                      <strong>{ability.name}:</strong> {ability.desc}
+                      <strong>{ability.name}</strong>
                     </div>
                   ))}
                 </div>
@@ -191,6 +194,12 @@ const MonsterViewer: React.FC = () => {
               />
             ) : null}
 
+            <button
+              onClick={getRandomMonster}
+              style={{ ...styles.button, marginTop: "16px" }}
+            >
+              {loading ? "Carregando..." : "GERAR OUTRO MONSTRO"}
+            </button>
           </div>
         )}
       </div>
@@ -199,27 +208,26 @@ const MonsterViewer: React.FC = () => {
 };
 
 const styles = {
-    wrapper: {
-      backgroundColor: "#000",
-      minHeight: "100vh",
-      padding: "32px 16px",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "flex-start",
-      color: "#fff",
-    },
-    container: {
-      maxWidth: "400px",
-      width: "100%",
-      fontFamily: "sans-serif",
-      color: "#fff",
-    },
-  
+  wrapper: {
+    backgroundColor: "#1a1a1a",
+    minHeight: "100vh",
+    padding: "32px 16px",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "flex-start",
+    color: "#fff",
+  },
+  container: {
+    maxWidth: "400px",
+    width: "100%",
+    fontFamily: "sans-serif",
+    color: "#fff",
+  },
   title: {
     textAlign: "center" as const,
     fontSize: "22px",
     marginBottom: "16px",
-    color: "#111",
+    color: "#fff",
   },
   button: {
     width: "100%",
@@ -253,4 +261,4 @@ const styles = {
   },
 };
 
-export default MonsterViewer;
+export default TabMonstros;
