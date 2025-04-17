@@ -4,7 +4,23 @@ import { translations, translate } from "../utils/translations";
 import { monsterNames } from "../utils/monsterNames";
 import { getMonsterFlavorText } from "../api/openAi";
 
-const TabMonstros: React.FC = () => {
+
+interface TabProps {
+  apiKey?: string;
+}
+
+const withoutImage = [ 'bat', 'cat', 'crab', 'deer', 'dire-wolf', 'draft-horse', 'giant-goat', 'druid', 'eagle', 'elephant', 'elk', 'frog', 'giant-ape', 'giant-badger',
+  'giant-bat', 'giant-boar', 'giant-centipede', 'giant-constrictor-snake', 'giant-crab', 'giant-crocodile', 'giant-eagle', 'giant-elk', 'giant-fire-beetle', 'giant-frog',
+  'giant-goat', 'giant-hyena', 'giant-lizard', 'giant-octopus', 'giant-owl', 'giant-poisonous-snake', 'giant-rat', 'giant-rat-diseased', 'giant-scorpion', 'giant-sea-horse', 'giant-shark',
+  'giant-spider', 'giant-toad', 'giant-vulture', 'giant-wasp', 'giant-weasel', 'giant-wolf-spider', 'goat', 'guard', 'hawk', 'hunter-shark', 'hyena', 'killer-whale', 'jackal', 'knight', 'lemure',
+  'lion', 'lizard', 'mage', 'mammoth', 'mule', 'octopus', 'owl', 'panther', 'poisonous-snake', 'polar-bear', 'pony', 'priest', 'quipper', 'rat', 'raven', 'reef-shark', 'rhinoceros',
+  'riding-horse', 'scorpion', 'sea-horse', 'spider', 'spy', 'succubus-incubus', 'swarm-of-bats', 'swarm-of-beetles', 'swarm-of-centipedes', 'swarm-of-insects', 'swarm-of-poisonous-snakes',
+  'swarm-of-quippers', 'swarm-of-rats', 'swarm-of-ravens', 'swarm-of-spiders', 'swarm-of-wasps', 'tiger', 'vulture', 'werebear-human', 'werebear-hybrid', 'wereboar-human', 'wereboar-hybrid',
+  'wererat-human', 'wererat-hybrid', 'weretiger-human', 'weretiger-hybrid', 'werewolf-human', 'werewolf-hybrid'
+];
+
+const TabMonstros: React.FC<TabProps> = ({ apiKey }) => {
+
   const [monstersList, setMonstersList] = useState<MonsterBasic[]>([]);
   const [randomMonster, setRandomMonster] = useState<MonsterDetails | null>(
     null
@@ -12,15 +28,17 @@ const TabMonstros: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [promptInput, setPromptInput] = useState("");
   const [flavorText, setFlavorText] = useState<string | null>(null);
-  const customPrompt = randomMonster
-    ? promptInput ||
-      `Me dê uma descrição de um monstro chamado "${randomMonster.name}".`
-    : "";
 
   useEffect(() => {
     MonstersAPI.fetchMonsterList().then(setMonstersList);
   }, []);
 
+  const MonsterButton = ({ label }: { label: string }) => (
+    <button onClick={getRandomMonster} style={{ ...styles.button, marginTop: "16px" }}>
+      {loading ? "Carregando..." : label}
+    </button>
+  );
+  
   const getRandomMonster = async () => {
     if (monstersList.length === 0) return;
     setLoading(true);
@@ -34,24 +52,12 @@ const TabMonstros: React.FC = () => {
   };
 
   useEffect(() => {
-    if (randomMonster?.name) {
-      getMonsterFlavorText(customPrompt).then(setFlavorText);
+    if (randomMonster?.name && apiKey?.trim() && promptInput.trim()) {
+      getMonsterFlavorText(translate(monsterNames, randomMonster.name), promptInput, apiKey).then(setFlavorText);
     }
-  }, [randomMonster]);
+  }, [randomMonster, apiKey, promptInput]);   
 
-  const hasLocalImage = (index: string) => {
-    const withoutImage = [ 'bat', 'cat', 'crab', 'deer', 'dire-wolf', 'draft-horse', 'giant-goat', 'druid', 'eagle', 'elephant', 'elk', 'frog', 'giant-ape', 'giant-badger',
-      'giant-bat', 'giant-boar', 'giant-centipede', 'giant-constrictor-snake', 'giant-crab', 'giant-crocodile', 'giant-eagle', 'giant-elk', 'giant-fire-beetle', 'giant-frog',
-      'giant-goat', 'giant-hyena', 'giant-lizard', 'giant-octopus', 'giant-owl', 'giant-poisonous-snake', 'giant-rat', 'giant-rat-diseased', 'giant-scorpion', 'giant-sea-horse', 'giant-shark',
-      'giant-spider', 'giant-toad', 'giant-vulture', 'giant-wasp', 'giant-weasel', 'giant-wolf-spider', 'goat', 'guard', 'hawk', 'hunter-shark', 'hyena', 'killer-whale', 'jackal', 'knight', 'lemure',
-      'lion', 'lizard', 'mage', 'mammoth', 'mule', 'octopus', 'owl', 'panther', 'poisonous-snake', 'polar-bear', 'pony', 'priest', 'quipper', 'rat', 'raven', 'reef-shark', 'rhinoceros',
-      'riding-horse', 'scorpion', 'sea-horse', 'spider', 'spy', 'succubus-incubus', 'swarm-of-bats', 'swarm-of-beetles', 'swarm-of-centipedes', 'swarm-of-insects', 'swarm-of-poisonous-snakes',
-      'swarm-of-quippers', 'swarm-of-rats', 'swarm-of-ravens', 'swarm-of-spiders', 'swarm-of-wasps', 'tiger', 'vulture', 'werebear-human', 'werebear-hybrid', 'wereboar-human', 'wereboar-hybrid',
-      'wererat-human', 'wererat-hybrid', 'weretiger-human', 'weretiger-hybrid', 'werewolf-human', 'werewolf-hybrid'
-    ];
-    return !withoutImage.includes(index);
-  };
-  
+  const hasLocalImage = (index: string) => !withoutImage.includes(index); 
 
   return (
     <div style={styles.wrapper}>
@@ -69,34 +75,17 @@ const TabMonstros: React.FC = () => {
               padding: "8px",
               fontSize: "16px",
               borderRadius: "8px",
-              backgroundColor: "#111",     // fundo escuro
-              color: "#fff",               // texto branco
-              border: "1px solid #555",    // borda sutil
+              backgroundColor: "#111", 
+              color: "#fff",           
+              border: "1px solid #555",
             }}
           />
         </div>
 
-        <button onClick={getRandomMonster} style={styles.button}>
-          {loading ? "Carregando..." : "GERAR MONSTRO"}
-        </button>
+        <MonsterButton label="GERAR MONSTRO" />
 
         {randomMonster && (
-          <div
-            style={{
-              backgroundImage: 'url("/papel-textura.jpg")',
-              backgroundSize: "cover",
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "center",
-              padding: "24px",
-              borderRadius: "12px",
-              boxShadow: "0 0 20px rgba(0,0,0,0.3)",
-              maxWidth: "800px",
-              margin: "24px auto",
-              fontFamily: "Morris Roman",
-              color: "#2b2b2b",
-              lineHeight: 1.6,
-            }}
-          >
+          <div style={styles.monsterCard}>
             <h2>{translate(monsterNames, randomMonster.name)}</h2>
             <p>
               <strong>Tamanho:</strong>{" "}
@@ -194,12 +183,7 @@ const TabMonstros: React.FC = () => {
               />
             ) : null}
 
-            <button
-              onClick={getRandomMonster}
-              style={{ ...styles.button, marginTop: "16px" }}
-            >
-              {loading ? "Carregando..." : "GERAR OUTRO MONSTRO"}
-            </button>
+          <MonsterButton label="GERAR OUTRO MONSTRO" />
           </div>
         )}
       </div>
@@ -216,6 +200,20 @@ const styles = {
     justifyContent: "center",
     alignItems: "flex-start",
     color: "#fff",
+  },
+  monsterCard: {
+    backgroundImage: 'url("/papel-textura.jpg")',
+    backgroundSize: "cover",
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: "center",
+    padding: "24px",
+    borderRadius: "12px",
+    boxShadow: "0 0 20px rgba(0,0,0,0.3)",
+    maxWidth: "800px",
+    margin: "24px auto",
+    fontFamily: "Morris Roman",
+    color: "#2b2b2b",
+    lineHeight: 1.6,
   },
   container: {
     maxWidth: "400px",
@@ -256,9 +254,9 @@ const styles = {
     marginBottom: "4px",
     marginTop: "30px",
     fontSize: "1.5rem",
-    fontWeight: "bold" as const,
+    fontWeight: 700,
     color: "#4b0082",
-  },
+  },  
 };
 
 export default TabMonstros;

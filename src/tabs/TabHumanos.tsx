@@ -3,6 +3,10 @@ import React, { useState } from 'react';
 // import { Grupo, NivelTecnologico, NivelMagico } from '../utils/generateHumans';
 
 
+interface TabProps {
+  apiKey?: string;
+}
+
 const grupos = ['Bandidos', 'Piratas', 'Piratas Espaciais', 'Guardas', 'Soldados'];
 const niveisTecnologicos = ['Baixo', 'Médio', 'Alto', 'Muito Alto'];
 const niveisMagicos = ['Nenhum', 'Baixo', 'Médio', 'Alto'];
@@ -30,8 +34,7 @@ const inputStyle: React.CSSProperties = {
   boxSizing: 'border-box',
 };
 
-
-const TabHumanos: React.FC = () => {
+const TabHumanos: React.FC<TabProps> = ({  }) => {
   const [grupo, setGrupo] = useState('Bandidos');
   const [nivelTecnologico, setNivelTecnologico] = useState('Baixo');
   const [nivelMagico, setNivelMagico] = useState('Nenhum');
