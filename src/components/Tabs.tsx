@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import TabMonstros from '../tabs/TabMonstros';
 import TabHumanos from '../tabs/TabHumanos';
 import TabHumanosIA from '../tabs/TabHumanosIA';
+import TabNomes from '../tabs/TabNomes';
 
 
 const Tabs: React.FC = () => {
   const [apiKey, setApiKey] = useState('');
-  const [activeTab, setActiveTab] = useState<'monstros' | 'humanos' | 'ia'>('monstros');
+  const [activeTab, setActiveTab] = useState<'monstros' | 'humanos' | 'ia' | 'nomes'>('monstros');
 
   const renderTab = () => {
     switch (activeTab) {
@@ -16,26 +17,30 @@ const Tabs: React.FC = () => {
         return <TabHumanos apiKey={apiKey} />;
       case 'ia':
         return <TabHumanosIA apiKey={apiKey} />;
+      case 'nomes':
+        return <TabNomes/>;
       default:
         return null;
     }
   };
 
   const tabStyle = (tab: string) => ({
-    padding: '8px 16px',
-    marginRight: '8px',
+    padding: '6px 12px',
+    marginRight: '6px',
     borderRadius: '6px',
     border: activeTab === tab ? '1px solid white' : 'none',
     fontWeight: activeTab === tab ? 'bold' : 'normal',
     backgroundColor: activeTab === tab ? '#1a1a1a' : 'transparent',
     color: '#fff',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    fontSize: '20px',
+    whiteSpace: 'nowrap'
   });  
 
   return (
     
     <div>
-      <div style={{ display: 'flex', padding: '12px', borderBottom: '1px solid white' }}>
+      <div style={{ display: 'flex', padding: '12px', borderBottom: '1px solid white', overflowX: 'auto', whiteSpace: 'nowrap'}}>
         <button style={tabStyle('monstros')} onClick={() => setActiveTab('monstros')}>
           Monstros
         </button>
@@ -44,6 +49,9 @@ const Tabs: React.FC = () => {
         </button>
         <button style={tabStyle('ia')} onClick={() => setActiveTab('ia')}>
           Humanos IA
+        </button>
+        <button style={tabStyle('nomes')} onClick={() => setActiveTab('nomes')}>
+          Nomes
         </button>
       </div>
       <div style={{ padding: '12px' }}>
