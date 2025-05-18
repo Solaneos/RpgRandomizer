@@ -33,10 +33,17 @@ const TabHumanos: React.FC<TabProps> = () => {
   const [quantidade, setQuantidade] = useState(1);
   const [nivel, setNivel] = useState(0);
   const [resultado, setResultado] = useState<ReturnType<typeof gerarHumanos>>([]);
+  const [erro, setErro] = useState('');
 
   const handleGerarGrupo = () => {
-    const gerados = gerarHumanos(grupo, nivelTecnologico, nivelMagico, quantidade, nivel);
-    setResultado(gerados);
+    try {
+      setErro('')
+      const gerados = gerarHumanos(grupo, nivelTecnologico, nivelMagico, quantidade, nivel);
+      setResultado(gerados);
+    } catch (err: any){
+      setErro(err.message);
+      setResultado([]);
+    }
   };
 
   return (
@@ -101,13 +108,21 @@ const TabHumanos: React.FC<TabProps> = () => {
         >
           GERAR GRUPO
         </button>
+
+        {erro && (
+          <div style={{ color: 'red', marginTop: '12px' }}>
+            {erro}
+          </div>
+        )}
+
       </div>
 
       {resultado.length > 0 && (
         <div style={{ marginTop: '24px', color: '#fff' }}>
           {resultado.map((h, idx) => (
             <div key={idx} style={{ marginBottom: '12px', padding: '12px', border: '1px solid #555', borderRadius: '8px' }}>
-              <strong>{h.grupo}</strong> - Perícia: {h.pericia}
+              <strong>{h.nome}</strong>
+              <div>Ataque: {h.ataque} | Defesa: {h.defesa}</div>
               <div>Armas: {h.armas.join(', ')}</div>
               {h.magias && h.magias.length > 0 && (
                 <div>Magias: {h.magias.join(', ')}</div>

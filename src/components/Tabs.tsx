@@ -4,25 +4,9 @@ import TabHumanos from '../tabs/TabHumanos';
 import TabHumanosIA from '../tabs/TabHumanosIA';
 import TabNomes from '../tabs/TabNomes';
 
-
 const Tabs: React.FC = () => {
   const [apiKey, setApiKey] = useState('');
   const [activeTab, setActiveTab] = useState<'monstros' | 'humanos' | 'ia' | 'nomes'>('monstros');
-
-  const renderTab = () => {
-    switch (activeTab) {
-      case 'monstros':
-        return <TabMonstros apiKey={apiKey} />;
-      case 'humanos':
-        return <TabHumanos apiKey={apiKey} />;
-      case 'ia':
-        return <TabHumanosIA apiKey={apiKey} />;
-      case 'nomes':
-        return <TabNomes/>;
-      default:
-        return null;
-    }
-  };
 
   const tabStyle = (tab: string) => ({
     padding: '6px 12px',
@@ -34,26 +18,18 @@ const Tabs: React.FC = () => {
     color: '#fff',
     cursor: 'pointer',
     fontSize: '20px',
-    whiteSpace: 'nowrap'
-  });  
+    whiteSpace: 'nowrap',
+  });
 
   return (
-    
     <div>
-      <div style={{ display: 'flex', padding: '12px', borderBottom: '1px solid white', overflowX: 'auto', whiteSpace: 'nowrap'}}>
-        <button style={tabStyle('monstros')} onClick={() => setActiveTab('monstros')}>
-          Monstros
-        </button>
-        <button style={tabStyle('humanos')} onClick={() => setActiveTab('humanos')}>
-          Humanos
-        </button>
-        <button style={tabStyle('ia')} onClick={() => setActiveTab('ia')}>
-          Humanos IA
-        </button>
-        <button style={tabStyle('nomes')} onClick={() => setActiveTab('nomes')}>
-          Nomes
-        </button>
+      <div style={{ display: 'flex', padding: '12px', borderBottom: '1px solid white', overflowX: 'auto', whiteSpace: 'nowrap' }}>
+        <button style={tabStyle('monstros')} onClick={() => setActiveTab('monstros')}>Monstros</button>
+        <button style={tabStyle('humanos')} onClick={() => setActiveTab('humanos')}>Humanos</button>
+        <button style={tabStyle('ia')} onClick={() => setActiveTab('ia')}>Humanos IA</button>
+        <button style={tabStyle('nomes')} onClick={() => setActiveTab('nomes')}>Nomes</button>
       </div>
+
       <div style={{ padding: '12px' }}>
         <input
           type="text"
@@ -72,10 +48,22 @@ const Tabs: React.FC = () => {
           }}
         />
       </div>
+
+      {/* Conteúdo das abas - todas montadas */}
       <div style={{ padding: '24px' }}>
-        {renderTab()}
+        <div style={{ display: activeTab === 'monstros' ? 'block' : 'none' }}>
+          <TabMonstros apiKey={apiKey} />
+        </div>
+        <div style={{ display: activeTab === 'humanos' ? 'block' : 'none' }}>
+          <TabHumanos apiKey={apiKey} />
+        </div>
+        <div style={{ display: activeTab === 'ia' ? 'block' : 'none' }}>
+          <TabHumanosIA apiKey={apiKey} />
+        </div>
+        <div style={{ display: activeTab === 'nomes' ? 'block' : 'none' }}>
+          <TabNomes />
+        </div>
       </div>
-      
     </div>
   );
 };
