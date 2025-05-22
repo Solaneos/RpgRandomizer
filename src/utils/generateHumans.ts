@@ -1,6 +1,6 @@
 import { gerarNomeAleatorio } from './nomeGenerator';
 
-export type Grupo = 'Bandidos' | 'Piratas' | 'Piratas Espaciais' | 'Guardas' | 'Soldados';
+export type Grupo = 'Bandidos' | 'Piratas' | 'Piratas Espaciais' | 'Guardas' | 'Soldados' | 'Gangues';
 export type NivelTecnologico = 'Baixo' | 'Medio' | 'Alto' | 'Muito Alto';
 export type NivelMagico = 'Nenhum' | 'Baixo' | 'Medio' | 'Alto';
 
@@ -37,6 +37,11 @@ const armasPorGrupo: Record<Grupo, string[]> = {
     'Clava', 'Soqueira', 'Lança', 'Alabarda', 'Lança de Arremesso', 'Pistola', 'Revolver', 'Rifle',
     'Escopeta', 'Arco', 'Besta', 'Granada de Luz', 'Granada de Fragmentação', 'Granada de Fumaça',
     'Granada de Magnetismo', 'Escudo', 'Chicote', 'Martelo de Guerra', 'Martelo', 'Foice'
+  ],
+  Gangues: [
+    'Adaga', 'Soqueira', 'Barra de Ferro', 'Porrete', 'Taco de Baseball',
+    'Pé de Cabra', 'Navalha', 'Canivete', 'Coquetel Molotov', 'Glock', '.38', 'Escopeta Cano Serrado', 'AK-47',
+    'Uzi', 'MAC-10', 'TEC-9', 'Corrente de Metal', 'Desert Eagle'
   ]
 };
 
@@ -45,21 +50,24 @@ const magiasDisponiveis = ['Água', 'Ar', 'Fogo', 'Terra', 'Natureza', 'Animais'
 
 const armasPorTecnologia: Record<NivelTecnologico, string[]> = {
   Baixo: [
-    'Adaga', 'Espada', 'Machado', 'Arco', 'Porrete', 'Besta', 'Chicote',
-    'Machadinha', 'Bastão', 'Sabre', 'Rede', 'Foice'
+    'Adaga', 'Espada', 'Machado', 'Arco', 'Porrete', 'Besta', 'Chicote', 'Lança', 'Corrente de Metal',
+    'Machadinha', 'Bastão', 'Sabre', 'Rede', 'Foice', 'Soqueira', 'Barra de Ferro', 'Taco de Baseball', 'Pé de Cabra', 'Navalha', 'Canivete'
   ],
   Medio: [
-    'Lança', 'Espada', 'Machado', 'Besta', 'Clava', 'Espada de Duas Mãos', 'Alabarda', 'Soqueira', 'Pistola', 'Rifle',
-    'Martelo', 'Martelo de Guerra', 'Revolver', 'Escudo', 'Espada Curta', 'Lança de Arremesso', 'Coquetel Molotov'
+    'Lança', 'Espada', 'Machado', 'Besta', 'Clava', 'Espada de Duas Mãos', 'Alabarda', 'Soqueira', 'Pistola', 'Rifle', 'Corrente de Metal',
+    'Martelo', 'Martelo de Guerra', 'Revolver', 'Escudo', 'Espada Curta', 'Lança de Arremesso', 'Coquetel Molotov',
+    'Barra de Ferro', 'Taco de Baseball', 'Pé de Cabra', 'Navalha', 'Canivete'
   ],
   Alto: [
-    'Lança', 'Soqueira', 'Pistola', 'Rifle', 'Martelo', 'Martelo de Guerra', 'Revolver',
+    'Soqueira', 'Pistola', 'Rifle', 'Martelo', 'Martelo de Guerra', 'Revolver', 
+    'Glock', '.38', 'Escopeta Cano Serrado', 'AK-47', 'Uzi', 'MAC-10', 'TEC-9', 'Desert Eagle',
     'Granada de Fragmentação', 'Granada de Luz', 'Granada de Fumaça', 'Granada de Magnetismo',
     'Escopeta', 'Canhão Móvel', 'Coquetel Molotov', 'Lança Granadas', 'Rifle de Assalto', 'Sniper',
     'Lança Granadas'
   ],
   'Muito Alto': [
     'Pistola Laser', 'Sabre de Luz', 'Escopeta Laser', 'Lança Granadas', 'Rifle Laser', 'Sniper', 'Granada de Fragmentação',
+    'Glock', '.38', 'Escopeta Cano Serrado', 'AK-47', 'Uzi', 'MAC-10', 'TEC-9', 'Desert Eagle',
     'Granada de Luz', 'Granada de Fumaça', 'Granada de Magnetismo'
   ]
 };
