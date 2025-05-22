@@ -5,7 +5,7 @@ interface TabProps {
   apiKey?: string;
 }
 
-const grupos: Grupo[] = ['Bandidos', 'Piratas', 'Piratas Espaciais', 'Guardas', 'Soldados'];
+const grupos: Grupo[] = ['Bandidos', 'Piratas', 'Piratas Espaciais', 'Guardas', 'Soldados', 'Gangues'];
 const niveisTecnologicos: NivelTecnologico[] = ['Baixo', 'Medio', 'Alto', 'Muito Alto'];
 const niveisMagicos: NivelMagico[] = ['Nenhum', 'Baixo', 'Medio', 'Alto'];
 const niveis = [0, 1, 2, 3, 4, 5];
