@@ -1,6 +1,7 @@
 //@ts-ignore
 interface TabProps {
   apiKey?: string;
+  useOpenAI: boolean;
 }
 
 const TabHumanosIA: React.FC<TabProps> = (

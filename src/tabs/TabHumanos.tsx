@@ -3,6 +3,7 @@ import { gerarHumanos, Grupo, NivelTecnologico, NivelMagico } from '../utils/gen
 
 interface TabProps {
   apiKey?: string;
+  useOpenAI: boolean;
 }
 
 const grupos: Grupo[] = ['Bandidos', 'Piratas', 'Piratas Espaciais', 'Guardas', 'Soldados', 'Gangues'];

@@ -3,13 +3,15 @@ import { MonstersAPI, MonsterBasic, MonsterDetails } from "../api/monstersApi";
 import { translations, translate } from "../utils/translations";
 import { monsterNames } from "../utils/monsterNames";
 import { getMonsterFlavorText } from "../api/openAi";
-
+import { generateMonsterEncounterText } from "../api/geminiAI";
 
 interface TabProps {
   apiKey?: string;
+  useOpenAI: boolean;
 }
 
-const withoutImage = [ 'bat', 'cat', 'crab', 'deer', 'dire-wolf', 'draft-horse', 'giant-goat', 'druid', 'eagle', 'elephant', 'elk', 'frog', 'giant-ape', 'giant-badger',
+const withoutImage = [
+  'bat', 'cat', 'crab', 'deer', 'dire-wolf', 'draft-horse', 'giant-goat', 'druid', 'eagle', 'elephant', 'elk', 'frog', 'giant-ape', 'giant-badger',
   'giant-bat', 'giant-boar', 'giant-centipede', 'giant-constrictor-snake', 'giant-crab', 'giant-crocodile', 'giant-eagle', 'giant-elk', 'giant-fire-beetle', 'giant-frog',
   'giant-goat', 'giant-hyena', 'giant-lizard', 'giant-octopus', 'giant-owl', 'giant-poisonous-snake', 'giant-rat', 'giant-rat-diseased', 'giant-scorpion', 'giant-sea-horse', 'giant-shark',
   'giant-spider', 'giant-toad', 'giant-vulture', 'giant-wasp', 'giant-weasel', 'giant-wolf-spider', 'goat', 'guard', 'hawk', 'hunter-shark', 'hyena', 'killer-whale', 'jackal', 'knight', 'lemure',
@@ -19,12 +21,9 @@ const withoutImage = [ 'bat', 'cat', 'crab', 'deer', 'dire-wolf', 'draft-horse',
   'wererat-human', 'wererat-hybrid', 'weretiger-human', 'weretiger-hybrid', 'werewolf-human', 'werewolf-hybrid'
 ];
 
-const TabMonstros: React.FC<TabProps> = ({ apiKey }) => {
-
+const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey }) => {
   const [monstersList, setMonstersList] = useState<MonsterBasic[]>([]);
-  const [randomMonster, setRandomMonster] = useState<MonsterDetails | null>(
-    null
-  );
+  const [randomMonster, setRandomMonster] = useState<MonsterDetails | null>(null);
   const [loading, setLoading] = useState(false);
   const [promptInput, setPromptInput] = useState("");
   const [flavorText, setFlavorText] = useState<string | null>(null);
@@ -38,26 +37,42 @@ const TabMonstros: React.FC<TabProps> = ({ apiKey }) => {
       {loading ? "Carregando..." : label}
     </button>
   );
-  
+
   const getRandomMonster = async () => {
     if (monstersList.length === 0) return;
     setLoading(true);
+    setFlavorText(null);
 
     const randomIndex = Math.floor(Math.random() * monstersList.length);
     const monster = monstersList[randomIndex];
     const details = await MonstersAPI.fetchMonsterDetails(monster.index);
 
     setRandomMonster(details);
+
+    if (promptInput.trim()) {
+      const monsterName = translate(monsterNames, details.name);
+      let generatedText: string | null = null;
+
+      if (useOpenAI) {
+        if (!apiKey?.trim()) {
+          setFlavorText("Erro: Chave da OpenAI ausente.");
+          setLoading(false);
+          return;
+        }
+        generatedText = await getMonsterFlavorText(monsterName, promptInput, apiKey);
+      } else {
+        generatedText = await generateMonsterEncounterText(monsterName, promptInput);
+      }
+
+      setFlavorText(generatedText);
+    } else {
+      setFlavorText(null);
+    }
+
     setLoading(false);
   };
 
-  useEffect(() => {
-    if (randomMonster?.name && apiKey?.trim() && promptInput.trim()) {
-      getMonsterFlavorText(translate(monsterNames, randomMonster.name), promptInput, apiKey).then(setFlavorText);
-    }
-  }, [randomMonster, apiKey, promptInput]);   
-
-  const hasLocalImage = (index: string) => !withoutImage.includes(index); 
+  const hasLocalImage = (index: string) => !withoutImage.includes(index);
 
   return (
     <div style={styles.wrapper}>
@@ -75,8 +90,8 @@ const TabMonstros: React.FC<TabProps> = ({ apiKey }) => {
               padding: "8px",
               fontSize: "16px",
               borderRadius: "8px",
-              backgroundColor: "#111", 
-              color: "#fff",           
+              backgroundColor: "#111",
+              color: "#fff",
               border: "1px solid #555",
             }}
           />
@@ -87,50 +102,24 @@ const TabMonstros: React.FC<TabProps> = ({ apiKey }) => {
         {randomMonster && (
           <div style={styles.monsterCard}>
             <h2>{translate(monsterNames, randomMonster.name)}</h2>
-            <p>
-              <strong>Tamanho:</strong>{" "}
-              {translate(translations.size, randomMonster.size)}
-            </p>
-            <p>
-              <strong>Tipo:</strong>{" "}
-              {translate(translations.type, randomMonster.type)}
-            </p>
-            <p>
-              <strong>Alinhamento:</strong>{" "}
-              {translate(translations.alignment, randomMonster.alignment)}
-            </p>
-
-            <p>
-              <strong>CA:</strong>{" "}
-              {Array.isArray(randomMonster.armor_class)
-                ? randomMonster.armor_class
-                    .map((ac) => `${ac.value} (${ac.type})`)
-                    .join(", ")
-                : randomMonster.armor_class}
-            </p>
-            <p>
-              <strong>HP:</strong> {randomMonster.hit_points} (
-              {randomMonster.hit_dice})
-            </p>
-            <p>
-              <strong>Desafio:</strong> {randomMonster.challenge_rating}
-            </p>
-
-            <p>
-              <strong>Força:</strong> {randomMonster.strength}
-            </p>
-            <p>
-              <strong>Perícia:</strong> {randomMonster.dexterity * 4}
-            </p>
+            <p><strong>Tamanho:</strong> {translate(translations.size, randomMonster.size)}</p>
+            <p><strong>Tipo:</strong> {translate(translations.type, randomMonster.type)}</p>
+            <p><strong>Alinhamento:</strong> {translate(translations.alignment, randomMonster.alignment)}</p>
+            <p><strong>CA:</strong> {Array.isArray(randomMonster.armor_class)
+                ? randomMonster.armor_class.map((ac) => `${ac.value} (${ac.type})`).join(", ")
+                : randomMonster.armor_class}</p>
+            <p><strong>HP:</strong> {randomMonster.hit_points} ({randomMonster.hit_dice})</p>
+            <p><strong>Desafio:</strong> {randomMonster.challenge_rating}</p>
+            <p><strong>Força:</strong> {randomMonster.strength}</p>
+            <p><strong>Perícia:</strong> {randomMonster.dexterity * 4}</p>
 
             <div>
               <strong>Velocidade:</strong>
               {Object.entries(randomMonster.speed).map(([type, value]) => {
                 const label = translate(translations.speed, type);
-                const numberMatch =
-                  typeof value === "string"
-                    ? value.match(/\d+/)
-                    : String(value).match(/\d+/);
+                const numberMatch = typeof value === "string"
+                  ? value.match(/\d+/)
+                  : String(value).match(/\d+/);
                 const feet = numberMatch ? parseFloat(numberMatch[0]) : null;
                 const meters = feet ? (feet * 0.3048).toFixed(1) + "m" : value;
                 return (
@@ -152,38 +141,31 @@ const TabMonstros: React.FC<TabProps> = ({ apiKey }) => {
               <div>
                 <h4 style={styles.sectionTitle}>Ações</h4>
                 {randomMonster.actions.map((action, index) => (
-                  <div key={index}>
-                    <strong>{action.name}</strong>
-                  </div>
+                  <div key={index}><strong>{action.name}</strong></div>
                 ))}
               </div>
             )}
 
-            {randomMonster.special_abilities &&
-              randomMonster.special_abilities.length > 0 && (
-                <div>
-                  <h4 style={styles.sectionTitle}>Habilidades Especiais</h4>
-                  {randomMonster.special_abilities.map((ability, index) => (
-                    <div key={index}>
-                      <strong>{ability.name}</strong>
-                    </div>
-                  ))}
-                </div>
-              )}
+            {randomMonster.special_abilities && randomMonster.special_abilities.length > 0 && (
+              <div>
+                <h4 style={styles.sectionTitle}>Habilidades Especiais</h4>
+                {randomMonster.special_abilities.map((ability, index) => (
+                  <div key={index}><strong>{ability.name}</strong></div>
+                ))}
+              </div>
+            )}
 
             {randomMonster.image || hasLocalImage(randomMonster.index) ? (
               <img
-                src={
-                  randomMonster.image
-                    ? `https://www.dnd5eapi.co${randomMonster.image}`
-                    : `/monsters/${randomMonster.index}.png`
-                }
+                src={randomMonster.image
+                  ? `https://www.dnd5eapi.co${randomMonster.image}`
+                  : `/monsters/${randomMonster.index}.png`}
                 alt={randomMonster.name}
                 style={{ maxWidth: "100%", height: "auto", marginTop: "16px" }}
               />
             ) : null}
 
-          <MonsterButton label="GERAR OUTRO MONSTRO" />
+            <MonsterButton label="GERAR OUTRO MONSTRO" />
           </div>
         )}
       </div>
@@ -238,25 +220,13 @@ const styles = {
     cursor: "pointer",
     marginBottom: "16px",
   },
-  card: {
-    backgroundColor: "#ffffff",
-    padding: "16px",
-    borderRadius: "8px",
-    boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.1)",
-    color: "#333",
-  },
-  monsterName: {
-    fontSize: "18px",
-    fontWeight: "bold" as const,
-    marginBottom: "10px",
-  },
   sectionTitle: {
     marginBottom: "4px",
     marginTop: "30px",
     fontSize: "1.5rem",
     fontWeight: 700,
     color: "#4b0082",
-  },  
+  },
 };
 
 export default TabMonstros;
