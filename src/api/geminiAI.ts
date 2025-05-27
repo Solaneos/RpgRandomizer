@@ -30,12 +30,9 @@ export async function generateMonsterEncounterText(
     },
   });
 
-  const fullPrompt = `Crie uma descrição imersiva para um encontro de RPG de mesa com o monstro "${monsterName}".
-${userPrompt ? `Considere os seguintes detalhes: "${userPrompt}".` : ''}
-Foque na atmosfera, nos sentidos (visão, som, cheiro) e no impacto emocional do monstro. Não inclua regras de jogo ou estatísticas.`;
+  const fullPrompt = userPrompt;
 
   try {
-    console.log('Chamando Gemini API com prompt:', fullPrompt);
     const result = await model.generateContent(fullPrompt);
     const response = await result.response;
     const text = response.text();

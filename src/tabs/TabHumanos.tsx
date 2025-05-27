@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { gerarHumanos, Grupo, NivelTecnologico, NivelMagico } from '../utils/generateHumans';
+import { gerarHumanos, Grupo, NivelTecnologico, NivelMagico } from '../utils/humans/generateHumans';
 
 interface TabProps {
   apiKey?: string;
@@ -49,7 +49,16 @@ const TabHumanos: React.FC<TabProps> = () => {
 
   return (
     <div style={{ maxWidth: 600, margin: '0 auto', padding: '12px' }}>
-      <h2 style={{ fontSize: '22px', marginBottom: '20px', color: '#fff' }}>Gerador de Humanos</h2>
+        <h2
+          style={{
+            fontSize: '22px',
+            marginBottom: '20px',
+            color: '#fff',
+            textAlign: 'center',
+          }}
+        >
+          Gerador de Humanos
+        </h2>
 
       <div style={labelStyle}>
         <label htmlFor="grupo" style={{ width: '140px', color: '#fff' }}>Grupo:</label>

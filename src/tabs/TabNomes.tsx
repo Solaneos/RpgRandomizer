@@ -1,5 +1,24 @@
 import React, { useState } from 'react';
-import { gerarNomeAleatorio } from '../utils/nomeGenerator.ts';
+import { gerarNomeAleatorio } from '../utils/humans/nomeGenerator.ts';
+
+const labelStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginBottom: '12px',
+  gap: '12px',
+};
+
+const inputStyle: React.CSSProperties = {
+  flex: 1,
+  padding: '8px',
+  borderRadius: '8px',
+  fontSize: '16px',
+  boxSizing: 'border-box',
+  backgroundColor: '#111',
+  color: '#fff',
+  border: '1px solid #555',
+};
 
 const TabNomes: React.FC = () => {
   const [estilo, setEstilo] = useState('comum');
@@ -12,39 +31,44 @@ const TabNomes: React.FC = () => {
     setNomeGerado(nome);
   };
 
-  const labelStyle = {
-    display: 'flex',
-    flexDirection: 'column' as const,
-    marginBottom: '16px',
-    fontSize: '16px',
-    color: 'white',
-  };
-
-  const inputStyle = {
-    marginTop: '4px',
-    padding: '10px',
-    fontSize: '15px',
-    borderRadius: '8px',
-    border: '1px solid #555',
-    backgroundColor: '#000',
-    color: '#fff',
-  };
-
   return (
-    <div style={{ maxWidth: '400px', margin: '0 auto', padding: '24px' }}>
-      <h2 style={{ color: '#fff', textAlign: 'center' }}>Gerador de Nomes</h2>
+    <div style={{ maxWidth: 600, margin: '0 auto', padding: '12px' }}>
+      <h2
+        style={{
+          fontSize: '22px',
+          marginBottom: '20px',
+          color: '#fff',
+          textAlign: 'center',
+        }}
+      >
+        Gerador de Nomes
+      </h2>
 
       <div style={labelStyle}>
-        <label>Estilo:</label>
-        <select value={estilo} onChange={(e) => setEstilo(e.target.value)} style={inputStyle}>
+        <label htmlFor="estilo" style={{ width: '140px', color: '#fff' }}>
+          Estilo:
+        </label>
+        <select
+          id="estilo"
+          value={estilo}
+          onChange={(e) => setEstilo(e.target.value)}
+          style={inputStyle}
+        >
           <option value="comum">Comum</option>
           <option value="medieval">Medieval</option>
         </select>
       </div>
 
       <div style={labelStyle}>
-        <label>Gênero:</label>
-        <select value={genero} onChange={(e) => setGenero(e.target.value)} style={inputStyle}>
+        <label htmlFor="genero" style={{ width: '140px', color: '#fff' }}>
+          Gênero:
+        </label>
+        <select
+          id="genero"
+          value={genero}
+          onChange={(e) => setGenero(e.target.value)}
+          style={inputStyle}
+        >
           <option value="masculino">Masculino</option>
           <option value="feminino">Feminino</option>
           <option value="neutro">Neutro</option>
@@ -53,45 +77,56 @@ const TabNomes: React.FC = () => {
 
       <div
         style={{
-          ...labelStyle,
-          flexDirection: 'row',
+          display: 'flex',
           alignItems: 'center',
           gap: '8px',
+          marginBottom: '12px',
         }}
       >
         <input
+          id="sobrenome"
           type="checkbox"
           checked={incluirSobrenome}
           onChange={(e) => setIncluirSobrenome(e.target.checked)}
         />
-        <label style={{ margin: 0 }}>Gerar sobrenome</label>
+        <label htmlFor="sobrenome" style={{ margin: 0, color: '#fff' }}>
+          Gerar sobrenome
+        </label>
       </div>
 
-      <button style={styles.botao} onClick={gerarNome}>
-        GERAR NOME
-      </button>
+      <div style={{ marginTop: '24px' }}>
+        <button
+          onClick={gerarNome}
+          style={{
+            width: '100%',
+            padding: '12px',
+            fontSize: '16px',
+            backgroundColor: '#5a00b1',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontFamily: 'Times New Roman, serif',
+          }}
+        >
+          GERAR NOME
+        </button>
+      </div>
 
       {nomeGerado && (
-        <div style={{ marginTop: '24px', fontSize: '20px', color: 'white', textAlign: 'center' }}>
+        <div
+          style={{
+            marginTop: '24px',
+            fontSize: '20px',
+            color: '#fff',
+            textAlign: 'center',
+          }}
+        >
           <strong>{nomeGerado}</strong>
         </div>
       )}
     </div>
   );
-};
-
-const styles = {
-  botao: {
-    width: '100%',
-    padding: '12px',
-    fontSize: '16px',
-    backgroundColor: '#5a00b1',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontFamily: 'Times New Roman, serif',
-  },
 };
 
 export default TabNomes;

@@ -1,7 +1,6 @@
 import axios from 'axios';
 
 export async function getMonsterFlavorText(
-  monsterName: string,
   userPrompt: string,
   apiKey?: string
 ): Promise<string> {
@@ -9,7 +8,7 @@ export async function getMonsterFlavorText(
     return Promise.resolve('');
   }
 
-  const prompt = `Descreva o encontro com o seguinte monstro para um RPG de mesa: "${monsterName}"\n\n${userPrompt}`;
+  const prompt = userPrompt;
 
   try {
     const response = await axios.post(
