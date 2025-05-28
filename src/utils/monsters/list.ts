@@ -157,6 +157,7 @@ export const monsterTypes: Record<string, 'humano' | 'dragao' | 'animal'> = {
   'horse': 'animal',
   'hunter-shark': 'animal',
   'hyena': 'animal',
+  'jackal': 'animal',
   'killer-whale': 'animal',
   'lion': 'animal',
   'lizard': 'animal',

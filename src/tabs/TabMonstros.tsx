@@ -3,7 +3,7 @@ import { MonstersAPI, MonsterBasic, MonsterDetails } from "../api/monstersApi";
 import { translations, translate } from "../utils/general/translations";
 import { monsterNames } from "../utils/monsters/monsterNames";
 import { monsterEnvironments } from "../utils/monsters/monsterEnviroments";
-import { environments, Environment, monsterImages, monsterTypes } from "../utils/monsters/list";
+import { environments, Environment, monsterTypes } from "../utils/monsters/list";
 import { ApiPost } from "../utils/general/apiPost";
 
 interface TabProps {
@@ -93,8 +93,6 @@ const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey }) => {
 
     setLoading(false);
   };
-
-  const hasLocalImage = (index: string) => !monsterImages.includes(index);
 
   return (
     <div style={{ maxWidth: 600, margin: '0 auto', padding: '12px' }}>
@@ -227,11 +225,9 @@ const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey }) => {
             </div>
           )}
 
-          {randomMonster.image || hasLocalImage(randomMonster.index) ? (
+          
             <img
-              src={randomMonster.image
-                ? `https://www.dnd5eapi.co${randomMonster.image}`
-                : `/monsters/${randomMonster.index}.png`}
+              src={`/monsters/${randomMonster.index}.png`}
               alt={randomMonster.name}
               style={{
                 maxWidth: '500px',
@@ -243,7 +239,6 @@ const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey }) => {
                 objectFit: 'contain',
               }}
             />
-          ) : null}
 
           <button
             onClick={getRandomMonster}

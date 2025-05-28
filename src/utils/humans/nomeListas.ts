@@ -4,7 +4,7 @@ export const nomesMasculinosComuns = [
     'Roberto', 'Gerson', 'David', 'William', 'Richard', 'Thomas', 'Chris', 'Charles', 'Anthony', 'Mark', 'Donald', 'Andrew', 'Paul', 'Eric', 'Ronald',
     'Pedro', 'Rafael', 'Carlos', 'Fernando', 'Diego', 'Peter', 'Jason', 'George', 'Edward', 'Alphonse', 'Jeffrey', 'Ryan', 'Dwight', 'Jacob', 'Gary', 
     'Larry', 'Benjamin', 'Scott', 'Samuel', 'Gregory', 'Alexender', 'Patrick', 'Frank', 'Jack', 'Raymond', 'Dennis', 'Tyler', 'Henry', 'Ethan', 'Jemery', 
-    'Afonso', 'Roger', 'Terry', 'Walter', 'Jesse', 'Bruce', 'Billy', 'Albert', 'Wayne', 'Randy', 'Luke', 'Bobby', 'Isaac', 'Bradley', 
+    'Afonso', 'Roger', 'Terry', 'Walter', 'Jesse', 'Bruce', 'Billy', 'Albert', 'Wayne', 'Randy', 'Luke', 'Bobby', 'Isaac', 'Bradley', 'Thiago',
     'Roy', 'Jim', 'Oscar', 'Barney', 'Marshal', 'Phil', 'Jay', 'Mitchel', 'Cameron', 'Hank', 'Ted', 'Jonas', 'Shane', 'Wagner', 'Jemerson', 'Augusto',
   ];
   
@@ -62,7 +62,7 @@ export const nomesMasculinosComuns = [
     'Cardoso', 'Moura', 'Barros', 'Teixeira', 'Ribeiro', 'Nascimento', 'Araújo', 'Campos', 'Moreira', 'Gonçalves',
     'Martins', 'Melo', 'Rocha', 'Barbosa', 'Carvalho', 'Monteiro', 'Freitas', 'Pires', 'Vieira', 'Correia',
     'Farias', 'Andrade', 'Machado', 'Rezende', 'Tavares', 'Castro', 'Batista', 'Cavalcante', 'Gomes', 'Ramos',
-    'Neves', 'Borges', 'Bezerra', 'Marques', 'Antunes', 'Aguiar', 'Vasconcelos', 'Macedo', 'Xavier', 'Queiroz',
+    'Neves', 'Borges', 'Bezerra', 'Marques', 'Antunes', 'Aguiar', 'Vasconcelos', 'Macedo', 'Xavier', 'Queiroz', 'Peres',
   
     // Americanos
     'Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez',
