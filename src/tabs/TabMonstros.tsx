@@ -9,7 +9,6 @@ import { ApiPost } from "../utils/general/apiPost";
 interface TabProps {
   apiKey?: string;
   useOpenAI: boolean;
-  tryImageGeneration: boolean;
 }
 
 const labelStyle: React.CSSProperties = {
@@ -31,7 +30,7 @@ const inputStyle: React.CSSProperties = {
   border: "1px solid #555",
 };
 
-const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey, tryImageGeneration }) => {
+const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey }) => {
   const [monstersList, setMonstersList] = useState<MonsterBasic[]>([]);
   const [randomMonster, setRandomMonster] = useState<MonsterDetails | null>(null);
   const [loading, setLoading] = useState(false);
@@ -42,6 +41,8 @@ const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey, tryImageGeneration
   const [hideAnimals, setHideAnimals] = useState(false);
   const [hideDragons, setHideDragons] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [localTryImageGen, setLocalTryImageGen] = useState(false);
+  const [downloadImage, setDownloadImage] = useState(false);
 
   useEffect(() => {
     MonstersAPI.fetchMonsterList().then(setMonstersList);
@@ -79,7 +80,7 @@ const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey, tryImageGeneration
     const details = await MonstersAPI.fetchMonsterDetails(monster.index);
     setRandomMonster(details);
 
-    const apiPost = new ApiPost(apiKey, useOpenAI, tryImageGeneration);
+    const apiPost = new ApiPost(apiKey, useOpenAI, localTryImageGen);
     const result = await apiPost.generate({
       monsterName: translate(monsterNames, details.name),
       environment: selectedEnvironment,
@@ -90,6 +91,15 @@ const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey, tryImageGeneration
 
     if (result.imageBase64) {
       setGeneratedImage(`data:image/png;base64,${result.imageBase64}`);
+    }
+
+    if (result.imageBase64 && downloadImage) {
+      const link = document.createElement("a");
+      link.href = `data:image/png;base64,${result.imageBase64}`;
+      link.download = `${monster.index}_gemini.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
 
     setLoading(false);
@@ -117,6 +127,28 @@ const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey, tryImageGeneration
             </option>
           ))}
         </select>
+      </div>
+
+      <div style={{ marginBottom: "16px", display: "flex", flexDirection: "column", gap: "8px" }}>
+        <label style={{ color: "#fff", display: "flex", alignItems: "center", gap: "8px" }}>
+          <input
+            type="checkbox"
+            checked={localTryImageGen}
+            onChange={(e) => setLocalTryImageGen(e.target.checked)}
+          />
+          Gerar Imagem Gemini
+        </label>
+
+        {localTryImageGen && (
+          <label style={{ color: "#fff", display: "flex", alignItems: "center", gap: "8px" }}>
+            <input
+              type="checkbox"
+              checked={downloadImage}
+              onChange={(e) => setDownloadImage(e.target.checked)}
+            />
+            Baixar Imagem
+          </label>
+        )}
       </div>
 
       <div style={{ marginBottom: "12px" }}>

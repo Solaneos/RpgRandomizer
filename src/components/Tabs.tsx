@@ -8,7 +8,6 @@ const Tabs: React.FC = () => {
   const [apiKey, setApiKey] = useState('');
   const [activeTab, setActiveTab] = useState<'monstros' | 'humanos' | 'ia' | 'nomes'>('monstros');
   const [useOpenAI, setUseOpenAI] = useState<boolean>(false);
-  const [tryImageGeneration, setTryImageGeneration] = useState<boolean>(false);
 
   const tabStyle = (tab: string) => ({
     padding: '8px 16px',
@@ -98,39 +97,12 @@ const Tabs: React.FC = () => {
             }}
           />
         </div>
-
-        {!useOpenAI && (
-          <label htmlFor="tryImageGeneration" style={{
-            color: '#fff',
-            fontSize: '16px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-          }}>
-            <input
-              type="checkbox"
-              id="tryImageGeneration"
-              checked={tryImageGeneration}
-              onChange={(e) => setTryImageGeneration(e.target.checked)}
-              style={{
-                width: '24px',
-                height: '24px',
-                borderRadius: '6px',
-                border: '2px solid #555',
-                backgroundColor: tryImageGeneration ? '#4CAF50' : '#222',
-                cursor: 'pointer',
-              }}
-            />
-            Tentar Geração de Imagem
-          </label>
-        )}
       </div>
 
       <div style={{ padding: '24px' }}>
-        {activeTab === 'monstros' && <TabMonstros useOpenAI={useOpenAI} apiKey={apiKey} tryImageGeneration={tryImageGeneration} />}
-        {activeTab === 'humanos' && <TabHumanos useOpenAI={useOpenAI} apiKey={apiKey} tryImageGeneration={tryImageGeneration} />}
-        {activeTab === 'ia' && <TabHumanosIA useOpenAI={useOpenAI} apiKey={apiKey} tryImageGeneration={tryImageGeneration} />}
+        {activeTab === 'monstros' && <TabMonstros useOpenAI={useOpenAI} apiKey={apiKey} />}
+        {activeTab === 'humanos' && <TabHumanos useOpenAI={useOpenAI} apiKey={apiKey} />}
+        {activeTab === 'ia' && <TabHumanosIA useOpenAI={useOpenAI} apiKey={apiKey} />}
         {activeTab === 'nomes' && <TabNomes />}
       </div>
     </div>
