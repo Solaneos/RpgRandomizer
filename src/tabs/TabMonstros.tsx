@@ -9,6 +9,7 @@ import { ApiPost } from "../utils/general/apiPost";
 interface TabProps {
   apiKey?: string;
   useOpenAI: boolean;
+  tryImageGeneration: boolean;
 }
 
 const labelStyle: React.CSSProperties = {
@@ -30,17 +31,17 @@ const inputStyle: React.CSSProperties = {
   border: "1px solid #555",
 };
 
-const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey }) => {
+const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey, tryImageGeneration }) => {
   const [monstersList, setMonstersList] = useState<MonsterBasic[]>([]);
   const [randomMonster, setRandomMonster] = useState<MonsterDetails | null>(null);
   const [loading, setLoading] = useState(false);
   const [promptInput, setPromptInput] = useState("");
   const [flavorText, setFlavorText] = useState<string | null>(null);
   const [selectedEnvironment, setSelectedEnvironment] = useState<Environment>("todos");
-
   const [hideHumans, setHideHumans] = useState(false);
   const [hideAnimals, setHideAnimals] = useState(false);
   const [hideDragons, setHideDragons] = useState(false);
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
 
   useEffect(() => {
     MonstersAPI.fetchMonsterList().then(setMonstersList);
@@ -50,18 +51,19 @@ const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey }) => {
     if (monstersList.length === 0) return;
     setLoading(true);
     setFlavorText(null);
+    setGeneratedImage(null);
 
     const filteredMonsters = monstersList.filter((monster) => {
       const environmentsForMonster = monsterEnvironments[monster.index] || [];
-      const monsterType = monsterTypes[monster.index] || 'outro';
+      const monsterType = monsterTypes[monster.index] || "outro";
 
       const environmentMatches =
-        selectedEnvironment === 'todos' || environmentsForMonster.includes(selectedEnvironment);
+        selectedEnvironment === "todos" || environmentsForMonster.includes(selectedEnvironment);
 
       const typeMatches =
-        (!hideHumans || monsterType !== 'humano') &&
-        (!hideAnimals || monsterType !== 'animal') &&
-        (!hideDragons || monsterType !== 'dragao');
+        (!hideHumans || monsterType !== "humano") &&
+        (!hideAnimals || monsterType !== "animal") &&
+        (!hideDragons || monsterType !== "dragao");
 
       return environmentMatches && typeMatches;
     });
@@ -75,40 +77,32 @@ const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey }) => {
     const randomIndex = Math.floor(Math.random() * filteredMonsters.length);
     const monster = filteredMonsters[randomIndex];
     const details = await MonstersAPI.fetchMonsterDetails(monster.index);
-
     setRandomMonster(details);
 
-    if (promptInput.trim()) {
-      const apiPost = new ApiPost(apiKey, useOpenAI);
-      const generatedText = await apiPost.generate({
-        monsterName: translate(monsterNames, details.name),
-        environment: selectedEnvironment,
-        prompt: promptInput,
-      });
+    const apiPost = new ApiPost(apiKey, useOpenAI, tryImageGeneration);
+    const result = await apiPost.generate({
+      monsterName: translate(monsterNames, details.name),
+      environment: selectedEnvironment,
+      prompt: promptInput,
+    });
 
-      setFlavorText(generatedText);
-    } else {
-      setFlavorText(null);
+    setFlavorText(result.text);
+
+    if (result.imageBase64) {
+      setGeneratedImage(`data:image/png;base64,${result.imageBase64}`);
     }
 
     setLoading(false);
   };
 
   return (
-    <div style={{ maxWidth: 600, margin: '0 auto', padding: '12px' }}>
-      <h2
-        style={{
-          fontSize: "22px",
-          marginBottom: "20px",
-          color: "#fff",
-          textAlign: "center",
-        }}
-      >
+    <div style={{ maxWidth: 600, margin: "0 auto", padding: "12px" }}>
+      <h2 style={{ fontSize: "22px", marginBottom: "20px", color: "#fff", textAlign: "center" }}>
         Encontro Aleatório de Monstro
       </h2>
 
       <div style={labelStyle}>
-        <label htmlFor="ambiente" style={{ width: '140px', color: '#fff' }}>
+        <label htmlFor="ambiente" style={{ width: "140px", color: "#fff" }}>
           Ambiente:
         </label>
         <select
@@ -131,56 +125,56 @@ const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey }) => {
           value={promptInput}
           onChange={(e) => setPromptInput(e.target.value)}
           placeholder="Contexto do encontro para a IA"
-          style={{ ...inputStyle, width: '100%' }}
+          style={{ ...inputStyle, width: "100%" }}
         />
       </div>
 
-      <div style={{ 
-        display: 'flex', 
-        flexDirection: 'column', 
-        gap: '8px', 
-        marginBottom: '16px',
-        alignItems: 'flex-start'
+      <div style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "8px",
+        marginBottom: "16px",
+        alignItems: "flex-start",
       }}>
-        <label style={{ color: '#fff' }}>
+        <label style={{ color: "#fff" }}>
           <input
             type="checkbox"
             checked={hideHumans}
             onChange={(e) => setHideHumans(e.target.checked)}
-          />{' '}
+          />{" "}
           Esconder Humanos
         </label>
-        <label style={{ color: '#fff' }}>
+        <label style={{ color: "#fff" }}>
           <input
             type="checkbox"
             checked={hideAnimals}
             onChange={(e) => setHideAnimals(e.target.checked)}
-          />{' '}
+          />{" "}
           Esconder Animais
         </label>
-        <label style={{ color: '#fff' }}>
+        <label style={{ color: "#fff" }}>
           <input
             type="checkbox"
             checked={hideDragons}
             onChange={(e) => setHideDragons(e.target.checked)}
-          />{' '}
+          />{" "}
           Esconder Dragões
         </label>
       </div>
 
-      <div style={{ marginTop: '24px' }}>
+      <div style={{ marginTop: "24px" }}>
         <button
           onClick={getRandomMonster}
           style={{
-            width: '100%',
-            padding: '12px',
-            fontSize: '16px',
-            backgroundColor: '#5a00b1',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
+            width: "100%",
+            padding: "12px",
+            fontSize: "16px",
+            backgroundColor: "#5a00b1",
+            color: "#fff",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontFamily: "Segoe UI, Tahoma, Geneva, Verdana, sans-serif",
           }}
         >
           {loading ? "CARREGANDO..." : "GERAR MONSTRO"}
@@ -194,8 +188,9 @@ const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey }) => {
           <p><strong>Tipo:</strong> {translate(translations.type, randomMonster.type)}</p>
           <p><strong>Alinhamento:</strong> {translate(translations.alignment, randomMonster.alignment)}</p>
           <p><strong>CA:</strong> {Array.isArray(randomMonster.armor_class)
-              ? randomMonster.armor_class.map((ac) => `${ac.value} (${ac.type})`).join(", ")
-              : randomMonster.armor_class}</p>
+            ? randomMonster.armor_class.map((ac) => `${ac.value} (${ac.type})`).join(", ")
+            : randomMonster.armor_class}
+          </p>
           <p><strong>HP:</strong> {randomMonster.hit_points} ({randomMonster.hit_dice})</p>
           <p><strong>Desafio:</strong> {randomMonster.challenge_rating}</p>
           <p><strong>Força:</strong> {randomMonster.strength}</p>
@@ -205,9 +200,7 @@ const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey }) => {
             <strong>Velocidade:</strong>
             {Object.entries(randomMonster.speed).map(([type, value]) => {
               const label = translate(translations.speed, type);
-              const numberMatch = typeof value === "string"
-                ? value.match(/\d+/)
-                : String(value).match(/\d+/);
+              const numberMatch = typeof value === "string" ? value.match(/\d+/) : String(value).match(/\d+/);
               const feet = numberMatch ? parseFloat(numberMatch[0]) : null;
               const meters = feet ? (feet * 0.3048).toFixed(1) + "m" : value;
               return (
@@ -219,40 +212,57 @@ const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey }) => {
           </div>
 
           {flavorText && (
-            <div style={{ marginTop: '16px' }}>
+            <div style={{ marginTop: "16px" }}>
               <h4>Descrição IA:</h4>
               <p>{flavorText}</p>
             </div>
           )}
 
-          
+          {generatedImage && (
+            <img
+              src={generatedImage}
+              alt={randomMonster.name}
+              style={{
+                maxWidth: "500px",
+                maxHeight: "350px",
+                width: "100%",
+                height: "auto",
+                display: "block",
+                margin: "16px auto 0 auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
+
+          {!generatedImage && (
             <img
               src={`/monsters/${randomMonster.index}.png`}
               alt={randomMonster.name}
               style={{
-                maxWidth: '500px',
-                maxHeight: '350px',
-                width: '100%',
-                height: 'auto',
-                display: 'block',
-                margin: '16px auto 0 auto',
-                objectFit: 'contain',
+                maxWidth: "500px",
+                maxHeight: "350px",
+                width: "100%",
+                height: "auto",
+                display: "block",
+                margin: "16px auto 0 auto",
+                objectFit: "contain",
               }}
             />
+          )}
 
           <button
             onClick={getRandomMonster}
             style={{
-              marginTop: '5px',
-              width: '100%',
-              padding: '12px',
-              fontSize: '16px',
-              backgroundColor: '#5a00b1',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
+              marginTop: "5px",
+              width: "100%",
+              padding: "12px",
+              fontSize: "16px",
+              backgroundColor: "#5a00b1",
+              color: "#fff",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+              fontFamily: "Segoe UI, Tahoma, Geneva, Verdana, sans-serif",
             }}
           >
             GERAR OUTRO MONSTRO

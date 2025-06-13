@@ -4,6 +4,7 @@ import { gerarHumanos, Grupo, NivelTecnologico, NivelMagico } from '../utils/hum
 interface TabProps {
   apiKey?: string;
   useOpenAI: boolean;
+  tryImageGeneration: boolean;
 }
 
 const grupos: Grupo[] = ['Bandidos', 'Piratas', 'Piratas Espaciais', 'Guardas', 'Soldados', 'Gangues'];

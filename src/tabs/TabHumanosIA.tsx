@@ -2,6 +2,7 @@
 interface TabProps {
   apiKey?: string;
   useOpenAI: boolean;
+  tryImageGeneration: boolean;
 }
 
 const TabHumanosIA: React.FC<TabProps> = (

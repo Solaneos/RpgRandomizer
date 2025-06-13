@@ -43,7 +43,7 @@ export class MonstersAPI {
     if (!response.ok) throw new Error('Erro ao buscar monstro');
     const data = await response.json();
   
-    const monsterWithIndex = { ...data, index }; // 👈 adiciona a propriedade index
+    const monsterWithIndex = { ...data, index };
   
     localStorage.setItem(cacheKey, JSON.stringify(monsterWithIndex));
   

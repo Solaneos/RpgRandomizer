@@ -8,6 +8,7 @@ const Tabs: React.FC = () => {
   const [apiKey, setApiKey] = useState('');
   const [activeTab, setActiveTab] = useState<'monstros' | 'humanos' | 'ia' | 'nomes'>('monstros');
   const [useOpenAI, setUseOpenAI] = useState<boolean>(false);
+  const [tryImageGeneration, setTryImageGeneration] = useState<boolean>(false);
 
   const tabStyle = (tab: string) => ({
     padding: '8px 16px',
@@ -35,90 +36,101 @@ const Tabs: React.FC = () => {
           whiteSpace: 'nowrap',
         }}
       >
-        <button style={tabStyle('monstros')} onClick={() => setActiveTab('monstros')}>
-          Monstros
-        </button>
-        <button style={tabStyle('humanos')} onClick={() => setActiveTab('humanos')}>
-          Humanos
-        </button>
-        <button style={tabStyle('ia')} onClick={() => setActiveTab('ia')}>
-          Humanos IA
-        </button>
-        <button style={tabStyle('nomes')} onClick={() => setActiveTab('nomes')}>
-          Nomes
-        </button>
+        <button style={tabStyle('monstros')} onClick={() => setActiveTab('monstros')}>Monstros</button>
+        <button style={tabStyle('humanos')} onClick={() => setActiveTab('humanos')}>Humanos</button>
+        <button style={tabStyle('ia')} onClick={() => setActiveTab('ia')}>Humanos IA</button>
+        <button style={tabStyle('nomes')} onClick={() => setActiveTab('nomes')}>Nomes</button>
       </div>
 
       <div
         style={{
           padding: '16px',
           display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
+          flexDirection: 'column',
+          gap: '12px',
           fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
         }}
       >
-        <label
-          htmlFor="useOpenAICheckbox"
-          style={{
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <label htmlFor="useOpenAICheckbox" style={{
             color: '#fff',
             fontSize: '16px',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-          }}
-        >
+          }}>
+            <input
+              type="checkbox"
+              id="useOpenAICheckbox"
+              checked={useOpenAI}
+              onChange={(e) => setUseOpenAI(e.target.checked)}
+              style={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '6px',
+                border: '2px solid #555',
+                backgroundColor: useOpenAI ? '#4CAF50' : '#222',
+                cursor: 'pointer',
+              }}
+            />
+            Usar OpenAI
+          </label>
+
           <input
-            type="checkbox"
-            id="useOpenAICheckbox"
-            checked={useOpenAI}
-            onChange={(e) => setUseOpenAI(e.target.checked)}
+            type="text"
+            placeholder="Cole sua API Key da OpenAI"
+            value={apiKey}
+            onChange={(e) => setApiKey(e.target.value)}
+            disabled={!useOpenAI}
             style={{
-              appearance: 'none',
-              WebkitAppearance: 'none',
-              MozAppearance: 'none',
-              width: '24px',
-              height: '24px',
-              borderRadius: '6px',
-              border: '2px solid #555',
-              backgroundColor: useOpenAI ? '#4CAF50' : '#222',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'background-color 0.2s, border-color 0.2s',
+              width: '100%',
+              maxWidth: '400px',
+              padding: '8px',
+              fontSize: '16px',
+              borderRadius: '8px',
+              backgroundColor: '#000',
+              color: '#fff',
+              border: '1px solid #555',
+              opacity: useOpenAI ? 1 : 0.6,
+              cursor: useOpenAI ? 'text' : 'not-allowed',
+              transition: 'opacity 0.3s',
             }}
           />
-          Usar OpenAI
-        </label>
+        </div>
 
-        <input
-          type="text"
-          placeholder="Cole sua API Key da OpenAI"
-          value={apiKey}
-          onChange={(e) => setApiKey(e.target.value)}
-          disabled={!useOpenAI}
-          style={{
-            width: '100%',
-            maxWidth: '400px',
-            padding: '8px',
-            fontSize: '16px',
-            borderRadius: '8px',
-            backgroundColor: '#000',
+        {!useOpenAI && (
+          <label htmlFor="tryImageGeneration" style={{
             color: '#fff',
-            border: '1px solid #555',
-            opacity: useOpenAI ? 1 : 0.6,
-            cursor: useOpenAI ? 'text' : 'not-allowed',
-            transition: 'opacity 0.3s',
-          }}
-        />
+            fontSize: '16px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}>
+            <input
+              type="checkbox"
+              id="tryImageGeneration"
+              checked={tryImageGeneration}
+              onChange={(e) => setTryImageGeneration(e.target.checked)}
+              style={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '6px',
+                border: '2px solid #555',
+                backgroundColor: tryImageGeneration ? '#4CAF50' : '#222',
+                cursor: 'pointer',
+              }}
+            />
+            Tentar Geração de Imagem
+          </label>
+        )}
       </div>
 
       <div style={{ padding: '24px' }}>
-        {activeTab === 'monstros' && <TabMonstros useOpenAI={useOpenAI} apiKey={apiKey} />}
-        {activeTab === 'humanos' && <TabHumanos useOpenAI={useOpenAI} apiKey={apiKey} />}
-        {activeTab === 'ia' && <TabHumanosIA useOpenAI={useOpenAI} apiKey={apiKey} />}
+        {activeTab === 'monstros' && <TabMonstros useOpenAI={useOpenAI} apiKey={apiKey} tryImageGeneration={tryImageGeneration} />}
+        {activeTab === 'humanos' && <TabHumanos useOpenAI={useOpenAI} apiKey={apiKey} tryImageGeneration={tryImageGeneration} />}
+        {activeTab === 'ia' && <TabHumanosIA useOpenAI={useOpenAI} apiKey={apiKey} tryImageGeneration={tryImageGeneration} />}
         {activeTab === 'nomes' && <TabNomes />}
       </div>
     </div>
