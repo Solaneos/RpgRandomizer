@@ -103,18 +103,8 @@ const TabHumanos: React.FC<TabProps> = () => {
 
       <div style={{ marginTop: '24px' }}>
         <button
+          className="btn-generate"
           onClick={handleGerarGrupo}
-          style={{
-            width: '100%',
-            padding: '12px',
-            fontSize: '16px',
-            backgroundColor: '#5a00b1',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontFamily: 'Times New Roman, serif',
-          }}
         >
           GERAR GRUPO
         </button>

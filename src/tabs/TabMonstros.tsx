@@ -196,18 +196,8 @@ const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey }) => {
 
       <div style={{ marginTop: "24px" }}>
         <button
+          className="btn-generate"
           onClick={getRandomMonster}
-          style={{
-            width: "100%",
-            padding: "12px",
-            fontSize: "16px",
-            backgroundColor: "#5a00b1",
-            color: "#fff",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontFamily: "Segoe UI, Tahoma, Geneva, Verdana, sans-serif",
-          }}
         >
           {loading ? "CARREGANDO..." : "GERAR MONSTRO"}
         </button>
@@ -284,18 +274,7 @@ const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey }) => {
 
           <button
             onClick={getRandomMonster}
-            style={{
-              marginTop: "5px",
-              width: "100%",
-              padding: "12px",
-              fontSize: "16px",
-              backgroundColor: "#5a00b1",
-              color: "#fff",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontFamily: "Segoe UI, Tahoma, Geneva, Verdana, sans-serif",
-            }}
+            className="btn-generate"
           >
             GERAR OUTRO MONSTRO
           </button>
