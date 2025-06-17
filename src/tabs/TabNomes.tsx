@@ -96,18 +96,9 @@ const TabNomes: React.FC = () => {
 
       <div style={{ marginTop: '24px' }}>
         <button
+          className="btn-generate"
           onClick={gerarNome}
-          style={{
-            width: '100%',
-            padding: '12px',
-            fontSize: '16px',
-            backgroundColor: '#5a00b1',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontFamily: 'Times New Roman, serif',
-          }}
+
         >
           GERAR NOME
         </button>

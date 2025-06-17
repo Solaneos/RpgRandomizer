@@ -60,6 +60,23 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+.btn-generate {
+  background-color: #40407a;
+  width: 100%;
+  padding: 12px;
+  font-Size: 16px;
+  color: #fff;
+  border: none;
+  border-Radius: 8px;
+  cursor: pointer;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  &:hover {
+    background-color: #2c2c54;
+    transition: ease .5s;
+  }
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
