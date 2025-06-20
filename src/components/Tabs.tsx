@@ -7,7 +7,7 @@ import TabNomes from '../tabs/TabNomes';
 const Tabs: React.FC = () => {
   const [apiKey, setApiKey] = useState('');
   const [activeTab, setActiveTab] = useState<'monstros' | 'humanos' | 'ia' | 'nomes'>('monstros');
-  const [useOpenAI, setUseOpenAI] = useState<boolean>(false);
+  // const [useOpenAI, setUseOpenAI] = useState<boolean>(false); 
 
   const tabStyle = (tab: string) => ({
     width: '132px',
