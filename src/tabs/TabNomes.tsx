@@ -83,13 +83,14 @@ const TabNomes: React.FC = () => {
           marginBottom: '12px',
         }}
       >
+      <label className='checkboxContainer'>
         <input
           id="sobrenome"
           type="checkbox"
           checked={incluirSobrenome}
           onChange={(e) => setIncluirSobrenome(e.target.checked)}
         />
-        <label htmlFor="sobrenome" style={{ margin: 0, color: '#fff' }}>
+          <span className='checkmark'></span>
           Gerar sobrenome
         </label>
       </div>

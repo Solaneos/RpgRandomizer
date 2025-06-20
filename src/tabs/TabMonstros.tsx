@@ -107,14 +107,16 @@ const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey }) => {
 
   return (
     <div style={{ maxWidth: 600, margin: "0 auto", padding: "12px" }}>
-      <h2 style={{ fontSize: "22px", marginBottom: "20px", color: "#fff", textAlign: "center" }}>
-        Encontro Aleatório de Monstro
+      <h2 style={{
+        fontSize: '24px',
+        fontFamily: 'fontFamily',
+        justifyContent: 'start',
+        display: 'flex',
+        fontWeight: 'normal',
+      }}>
+        Ambiente
       </h2>
-
       <div style={labelStyle}>
-        <label htmlFor="ambiente" style={{ width: "140px", color: "#fff" }}>
-          Ambiente:
-        </label>
         <select
           id="ambiente"
           value={selectedEnvironment}
@@ -130,34 +132,48 @@ const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey }) => {
       </div>
 
       <div style={{ marginBottom: "16px", display: "flex", flexDirection: "column", gap: "8px" }}>
-        <label style={{ color: "#fff", display: "flex", alignItems: "center", gap: "8px" }}>
+        <label className='checkboxContainer'>
           <input
             type="checkbox"
             checked={localTryImageGen}
             onChange={(e) => setLocalTryImageGen(e.target.checked)}
           />
+          <span className='checkmark'></span>
           Gerar Imagem Gemini
         </label>
 
         {localTryImageGen && (
-          <label style={{ color: "#fff", display: "flex", alignItems: "center", gap: "8px" }}>
+          <label className='checkboxContainer'>
             <input
               type="checkbox"
               checked={downloadImage}
               onChange={(e) => setDownloadImage(e.target.checked)}
             />
+            <span className='checkmark'></span>
             Baixar Imagem
           </label>
         )}
       </div>
 
       <div style={{ marginBottom: "12px" }}>
+        <h2 style={{
+          fontSize: '24px',
+          fontFamily: 'fontFamily',
+          justifyContent: 'start',
+          display: 'flex',
+          fontWeight: 'normal',
+        }}>
+          Contexto do Encontro
+        </h2>
         <input
           type="text"
           value={promptInput}
           onChange={(e) => setPromptInput(e.target.value)}
-          placeholder="Contexto do encontro para a IA"
-          style={{ ...inputStyle, width: "100%" }}
+          placeholder="Descreva o contexto do encontro"
+          style={{
+            ...inputStyle, width: "100%",
+            height: '160px',
+          }}
         />
       </div>
 
@@ -168,28 +184,31 @@ const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey }) => {
         marginBottom: "16px",
         alignItems: "flex-start",
       }}>
-        <label style={{ color: "#fff" }}>
+        <label className='checkboxContainer'>
           <input
             type="checkbox"
             checked={hideHumans}
             onChange={(e) => setHideHumans(e.target.checked)}
           />{" "}
+          <span className='checkmark'></span>
           Esconder Humanos
         </label>
-        <label style={{ color: "#fff" }}>
+        <label className='checkboxContainer'>
           <input
             type="checkbox"
             checked={hideAnimals}
             onChange={(e) => setHideAnimals(e.target.checked)}
           />{" "}
+          <span className='checkmark'></span>
           Esconder Animais
         </label>
-        <label style={{ color: "#fff" }}>
+        <label className='checkboxContainer'>
           <input
             type="checkbox"
             checked={hideDragons}
             onChange={(e) => setHideDragons(e.target.checked)}
           />{" "}
+          <span className='checkmark'></span>
           Esconder Dragões
         </label>
       </div>
