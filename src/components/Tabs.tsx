@@ -7,9 +7,10 @@ import TabNomes from '../tabs/TabNomes';
 const Tabs: React.FC = () => {
   const [apiKey, setApiKey] = useState('');
   const [activeTab, setActiveTab] = useState<'monstros' | 'humanos' | 'ia' | 'nomes'>('monstros');
-  const [useOpenAI, setUseOpenAI] = useState<boolean>(false);
+  // const [useOpenAI, setUseOpenAI] = useState<boolean>(false); 
 
   const tabStyle = (tab: string) => ({
+    width: '132px',
     padding: '8px 16px',
     marginRight: '8px',
     borderRadius: '8px',
@@ -33,6 +34,7 @@ const Tabs: React.FC = () => {
           borderBottom: '1px solid white',
           overflowX: 'auto',
           whiteSpace: 'nowrap',
+          justifyContent: 'end',
         }}
       >
         <button style={tabStyle('monstros')} onClick={() => setActiveTab('monstros')}>Monstros</button>
@@ -50,49 +52,31 @@ const Tabs: React.FC = () => {
           fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <label htmlFor="useOpenAICheckbox" style={{
-            color: '#fff',
-            fontSize: '16px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexDirection:'column', justifyContent:'start',}}>
+          <h2 style = {{
+          fontSize: '24px',
+          fontFamily: 'fontFamily',
+          justifyContent:'start',
+          display:'flex',
+          fontWeight:'normal',
           }}>
-            <input
-              type="checkbox"
-              id="useOpenAICheckbox"
-              checked={useOpenAI}
-              onChange={(e) => setUseOpenAI(e.target.checked)}
-              style={{
-                width: '24px',
-                height: '24px',
-                borderRadius: '6px',
-                border: '2px solid #555',
-                backgroundColor: useOpenAI ? '#4CAF50' : '#222',
-                cursor: 'pointer',
-              }}
-            />
-            Usar OpenAI
-          </label>
-
+            OpenAI API Key(Opcional)
+          </h2>
           <input
             type="text"
             placeholder="Cole sua API Key da OpenAI"
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
-            disabled={!useOpenAI}
+            disabled={useOpenAI}
             style={{
               width: '100%',
-              maxWidth: '400px',
+              maxWidth: '600px',
               padding: '8px',
               fontSize: '16px',
               borderRadius: '8px',
               backgroundColor: '#000',
               color: '#fff',
               border: '1px solid #555',
-              opacity: useOpenAI ? 1 : 0.6,
-              cursor: useOpenAI ? 'text' : 'not-allowed',
               transition: 'opacity 0.3s',
             }}
           />
