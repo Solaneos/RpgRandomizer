@@ -56,6 +56,7 @@ const TabNomes: React.FC = () => {
         >
           <option value="comum">Comum</option>
           <option value="medieval">Medieval</option>
+          <option value="espanhol">Espanhol</option>
         </select>
       </div>
 
