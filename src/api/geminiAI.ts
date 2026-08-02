@@ -42,6 +42,7 @@ export async function generateMonsterEncounterText(
 export async function generateMonsterEncounterImage(
   monsterName: string,
   description: string,
+  scenario: string,
 ): Promise<{ base64: string; mimeType: string } | null> {
   if (!description.trim() || !monsterName.trim()) {
     console.warn("Descrição ou nome do monstro ausente para geração de imagem.");
@@ -52,6 +53,7 @@ export async function generateMonsterEncounterImage(
     action: "image",
     monsterName,
     description,
+    scenario,
   });
 
   if (!response.imageBase64) return null;

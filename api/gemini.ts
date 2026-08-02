@@ -191,6 +191,41 @@ Escreva somente dois parágrafos curtos, entre 120 e 180 palavras no total. Term
   return geminiResponse.text?.trim() || null;
 }
 
+function buildCloudflareImagePrompt(
+  monsterName: string,
+  scenario: string,
+  description: string,
+): string {
+  const prefix = `Create a cinematic dark-fantasy tabletop RPG encounter illustration.
+Main creature: ${monsterName}.
+Encounter scenario and environment (must be clearly represented): `;
+  const separator = `
+Creature appearance and behavior: `;
+  const suffix = `
+Keep the creature as the main subject, but visibly preserve the location, atmosphere, lighting, objects and action specified by the encounter scenario. Do not replace the requested setting with a generic background. Full-body creature when possible, highly detailed anatomy, dramatic composition, no text, no labels, no interface.`;
+  const availableLength = Math.max(
+    0,
+    CLOUDFLARE_IMAGE_PROMPT_MAX_LENGTH - prefix.length - separator.length - suffix.length,
+  );
+
+  let scenarioLength = Math.min(scenario.length, Math.floor(availableLength * 0.4));
+  let descriptionLength = Math.min(description.length, availableLength - scenarioLength);
+  let remainingLength = availableLength - scenarioLength - descriptionLength;
+
+  const additionalScenarioLength = Math.min(
+    remainingLength,
+    scenario.length - scenarioLength,
+  );
+  scenarioLength += additionalScenarioLength;
+  remainingLength -= additionalScenarioLength;
+  descriptionLength += Math.min(
+    remainingLength,
+    description.length - descriptionLength,
+  );
+
+  return `${prefix}${scenario.slice(0, scenarioLength)}${separator}${description.slice(0, descriptionLength)}${suffix}`;
+}
+
 async function generateImage(
   body: JsonRecord,
   accountId: string,
@@ -198,10 +233,10 @@ async function generateImage(
 ): Promise<{ base64: string; mimeType: string } | null | undefined> {
   const monsterName = readRequiredString(body, "monsterName", MAX_MONSTER_NAME_LENGTH);
   const description = readRequiredString(body, "description", MAX_DESCRIPTION_LENGTH);
-  if (!monsterName || !description) return undefined;
+  const scenario = readRequiredString(body, "scenario", MAX_PROMPT_LENGTH);
+  if (!monsterName || !description || !scenario) return undefined;
 
-  const prompt = `Dark fantasy tabletop RPG bestiary illustration of ${monsterName}. Focus on the creature, full body, highly detailed anatomy, cinematic lighting, dramatic composition, no text, no interface. Creature description: ${description}`
-    .slice(0, CLOUDFLARE_IMAGE_PROMPT_MAX_LENGTH);
+  const prompt = buildCloudflareImagePrompt(monsterName, scenario, description);
 
   const cloudflareResponse = await fetch(
     `https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(accountId)}/ai/run/${CLOUDFLARE_IMAGE_MODEL}`,

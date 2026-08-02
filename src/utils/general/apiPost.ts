@@ -42,6 +42,7 @@ export class ApiPost {
 
     const finalPrompt = `Crie uma descrição imersiva para um encontro de RPG de mesa com o monstro "${monsterName}". ${envText} Considere os seguintes detalhes: "${prompt}". 
     Foque na atmosfera, nos sentidos (visão, som, cheiro) e no impacto emocional do monstro. Não inclua regras de jogo ou estatísticas.`;
+    const imageScenario = `${envText}${prompt}`.trim();
 
     try {
       // OpenAI
@@ -78,7 +79,11 @@ export class ApiPost {
 
       if (this.tryImageGeneration) {
         try {
-          const image = await generateMonsterEncounterImage(monsterName, text);
+          const image = await generateMonsterEncounterImage(
+            monsterName,
+            text,
+            imageScenario,
+          );
           imageBase64 = image?.base64 ?? null;
           imageMimeType = image?.mimeType;
         } catch (error: unknown) {
