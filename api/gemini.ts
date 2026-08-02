@@ -1,19 +1,24 @@
-import { GoogleGenAI, Modality } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 
 const GEMINI_TEXT_MODEL = "gemini-2.5-flash";
-const GEMINI_IMAGE_MODEL = "gemini-2.5-flash-image";
+const CLOUDFLARE_IMAGE_MODEL = "@cf/black-forest-labs/flux-1-schnell";
 const GEMINI_TEXT_MAX_OUTPUT_TOKENS = 768;
 const MAX_MONSTER_NAME_LENGTH = 120;
 const MAX_PROMPT_LENGTH = 4_000;
 const MAX_DESCRIPTION_LENGTH = 8_000;
-const MAX_INPUT_IMAGE_LENGTH = 3_000_000;
-const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const CLOUDFLARE_IMAGE_PROMPT_MAX_LENGTH = 2_048;
+const CLOUDFLARE_IMAGE_STEPS = 4;
 
 type JsonRecord = Record<string, unknown>;
 
-interface InputImage {
-  base64: string;
-  mimeType: string;
+class ProviderRequestError extends Error {
+  readonly statusCode: number;
+
+  constructor(statusCode: number, message: string) {
+    super(message);
+    this.name = "ProviderRequestError";
+    this.statusCode = statusCode;
+  }
 }
 
 function isRecord(value: unknown): value is JsonRecord {
@@ -32,26 +37,6 @@ function readRequiredString(
   if (!trimmedValue || trimmedValue.length > maxLength) return null;
 
   return trimmedValue;
-}
-
-function readInputImage(value: unknown): InputImage | null | undefined {
-  if (value === undefined) return undefined;
-  if (!isRecord(value)) return null;
-
-  const base64 = value.base64;
-  const mimeType = value.mimeType;
-
-  if (
-    typeof base64 !== "string" ||
-    !base64 ||
-    base64.length > MAX_INPUT_IMAGE_LENGTH ||
-    typeof mimeType !== "string" ||
-    !ALLOWED_IMAGE_TYPES.has(mimeType)
-  ) {
-    return null;
-  }
-
-  return { base64, mimeType };
 }
 
 function isSameOriginRequest(request: Request): boolean {
@@ -86,6 +71,98 @@ function jsonResponse(body: JsonRecord, status: number): Response {
   });
 }
 
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (isRecord(error) && typeof error.message === "string") return error.message;
+  return String(error);
+}
+
+function getErrorStatus(error: unknown, message: string): number | null {
+  if (isRecord(error)) {
+    const status = error.statusCode ?? error.status ?? error.code;
+    if (typeof status === "number") return status;
+    if (typeof status === "string" && /^\d{3}$/.test(status)) return Number(status);
+  }
+
+  const statusMatch = message.match(/(?:^|\D)(400|401|403|404|429|500|502|503)(?:\D|$)/);
+  return statusMatch ? Number(statusMatch[1]) : null;
+}
+
+function getPublicGenerationError(
+  error: unknown,
+  isImageRequest: boolean,
+): { code: string; message: string; status: number } {
+  const errorMessage = getErrorMessage(error);
+  const normalizedMessage = errorMessage.toUpperCase();
+  const providerStatus = getErrorStatus(error, errorMessage);
+
+  if (
+    providerStatus === 429 ||
+    normalizedMessage.includes("RESOURCE_EXHAUSTED") ||
+    normalizedMessage.includes("QUOTA")
+  ) {
+    return {
+      code: isImageRequest ? "CLOUDFLARE_DAILY_LIMIT" : "GEMINI_QUOTA_EXCEEDED",
+      message: isImageRequest
+        ? "A cota gratuita diária de imagens da Cloudflare foi atingida."
+        : "A cota do Gemini foi excedida. Tente novamente mais tarde.",
+      status: 429,
+    };
+  }
+
+  if (
+    providerStatus === 401 ||
+    providerStatus === 403 ||
+    normalizedMessage.includes("PERMISSION_DENIED")
+  ) {
+    return {
+      code: isImageRequest ? "CLOUDFLARE_AUTH_FAILED" : "GEMINI_PERMISSION_DENIED",
+      message: isImageRequest
+        ? "O token da Cloudflare é inválido ou não tem permissão para Workers AI."
+        : "A chave do Gemini não tem permissão para usar este modelo.",
+      status: 403,
+    };
+  }
+
+  if (providerStatus === 404 || normalizedMessage.includes("NOT_FOUND")) {
+    return {
+      code: isImageRequest ? "CLOUDFLARE_MODEL_NOT_FOUND" : "GEMINI_MODEL_NOT_FOUND",
+      message: isImageRequest
+        ? "O modelo de imagem da Cloudflare não está disponível."
+        : "O modelo solicitado não está disponível para este projeto.",
+      status: 502,
+    };
+  }
+
+  if (providerStatus === 400 || normalizedMessage.includes("INVALID_ARGUMENT")) {
+    return {
+      code: isImageRequest ? "CLOUDFLARE_INVALID_REQUEST" : "GEMINI_INVALID_REQUEST",
+      message: isImageRequest
+        ? "A Cloudflare recusou os dados enviados para geração da imagem."
+        : "O Gemini recusou os dados enviados para geração.",
+      status: 400,
+    };
+  }
+
+  return {
+    code: isImageRequest ? "CLOUDFLARE_GENERATION_FAILED" : "GEMINI_GENERATION_FAILED",
+    message: isImageRequest
+      ? "Não foi possível gerar a imagem com a Cloudflare."
+      : "Não foi possível gerar o conteúdo com o Gemini.",
+    status: 502,
+  };
+}
+
+function getCloudflareErrorMessage(payload: unknown): string | null {
+  if (!isRecord(payload) || !Array.isArray(payload.errors)) return null;
+
+  const messages = payload.errors
+    .map((error) => isRecord(error) && typeof error.message === "string" ? error.message : null)
+    .filter((message): message is string => Boolean(message));
+
+  return messages.length > 0 ? messages.join("; ") : null;
+}
+
 async function generateText(ai: GoogleGenAI, body: JsonRecord): Promise<string | null> {
   const monsterName = readRequiredString(body, "monsterName", MAX_MONSTER_NAME_LENGTH);
   const userPrompt = readRequiredString(body, "userPrompt", MAX_PROMPT_LENGTH);
@@ -115,52 +192,56 @@ Escreva somente dois parágrafos curtos, entre 120 e 180 palavras no total. Term
 }
 
 async function generateImage(
-  ai: GoogleGenAI,
   body: JsonRecord,
+  accountId: string,
+  apiToken: string,
 ): Promise<{ base64: string; mimeType: string } | null | undefined> {
   const monsterName = readRequiredString(body, "monsterName", MAX_MONSTER_NAME_LENGTH);
   const description = readRequiredString(body, "description", MAX_DESCRIPTION_LENGTH);
-  const inputImage = readInputImage(body.inputImage);
+  if (!monsterName || !description) return undefined;
 
-  if (!monsterName || !description || inputImage === null) return undefined;
+  const prompt = `Dark fantasy tabletop RPG bestiary illustration of ${monsterName}. Focus on the creature, full body, highly detailed anatomy, cinematic lighting, dramatic composition, no text, no interface. Creature description: ${description}`
+    .slice(0, CLOUDFLARE_IMAGE_PROMPT_MAX_LENGTH);
 
-  const prompt = `Essa é a descrição do monstro: "${description}". Gere uma imagem épica e detalhada do monstro chamado "${monsterName}". Considere clima, iluminação e impacto visual cinematográfico, priorizando a descrição enviada.`;
-
-  const requestParts: Array<
-    | { text: string }
-    | { inlineData: { data: string; mimeType: string } }
-  > = [{ text: prompt }];
-
-  if (inputImage) {
-    requestParts.push({
-      inlineData: {
-        data: inputImage.base64,
-        mimeType: inputImage.mimeType,
+  const cloudflareResponse = await fetch(
+    `https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(accountId)}/ai/run/${CLOUDFLARE_IMAGE_MODEL}`,
+    {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiToken}`,
+        "Content-Type": "application/json",
       },
-    });
-  }
-
-  const geminiResponse = await ai.models.generateContent({
-    model: GEMINI_IMAGE_MODEL,
-    contents: [{ role: "user", parts: requestParts }],
-    config: {
-      responseModalities: [Modality.TEXT, Modality.IMAGE],
+      body: JSON.stringify({
+        prompt,
+        steps: CLOUDFLARE_IMAGE_STEPS,
+      }),
     },
-  });
+  );
 
-  const parts = geminiResponse.candidates?.[0]?.content?.parts;
-  if (!parts) return null;
-
-  for (const part of parts) {
-    const base64 = part.inlineData?.data;
-    const mimeType = part.inlineData?.mimeType;
-
-    if (base64 && mimeType?.startsWith("image/")) {
-      return { base64, mimeType };
-    }
+  const payload: unknown = await cloudflareResponse.json().catch(() => null);
+  if (!cloudflareResponse.ok) {
+    throw new ProviderRequestError(
+      cloudflareResponse.status,
+      getCloudflareErrorMessage(payload) ?? `Cloudflare Workers AI HTTP ${cloudflareResponse.status}`,
+    );
   }
 
-  return null;
+  if (!isRecord(payload) || payload.success !== true || !isRecord(payload.result)) {
+    throw new ProviderRequestError(
+      502,
+      getCloudflareErrorMessage(payload) ?? "Resposta inválida da Cloudflare Workers AI.",
+    );
+  }
+
+  const base64 = payload.result.image;
+  if (typeof base64 !== "string" || !base64) {
+    return null;
+  }
+
+  return {
+    base64,
+    mimeType: "image/jpeg",
+  };
 }
 
 export default {
@@ -185,16 +266,15 @@ export default {
       return jsonResponse({ error: "Corpo da requisição inválido." }, 400);
     }
 
-    const apiKey = process.env.GEMINI_API_KEY?.trim();
-    if (!apiKey) {
-      console.error("GEMINI_API_KEY não está configurada na Vercel.");
-      return jsonResponse({ error: "Serviço de IA não configurado." }, 500);
-    }
-
-    const ai = new GoogleGenAI({ apiKey });
-
     try {
       if (body.action === "text") {
+        const apiKey = process.env.GEMINI_API_KEY?.trim();
+        if (!apiKey) {
+          console.error("GEMINI_API_KEY não está configurada na Vercel.");
+          return jsonResponse({ error: "Geração de texto não configurada." }, 500);
+        }
+
+        const ai = new GoogleGenAI({ apiKey });
         const text = await generateText(ai, body);
         if (!text) {
           return jsonResponse({ error: "Dados para geração de texto inválidos." }, 400);
@@ -204,12 +284,19 @@ export default {
       }
 
       if (body.action === "image") {
-        const image = await generateImage(ai, body);
+        const accountId = process.env.CLOUDFLARE_ACCOUNT_ID?.trim();
+        const apiToken = process.env.CLOUDFLARE_API_TOKEN?.trim();
+        if (!accountId || !apiToken) {
+          console.error("Credenciais da Cloudflare não estão configuradas na Vercel.");
+          return jsonResponse({ error: "Geração de imagem não configurada." }, 500);
+        }
+
+        const image = await generateImage(body, accountId, apiToken);
         if (image === undefined) {
           return jsonResponse({ error: "Dados para geração de imagem inválidos." }, 400);
         }
         if (!image) {
-          return jsonResponse({ error: "O Gemini não retornou uma imagem." }, 502);
+          return jsonResponse({ error: "A Cloudflare não retornou uma imagem." }, 502);
         }
 
         return jsonResponse({
@@ -220,9 +307,21 @@ export default {
 
       return jsonResponse({ error: "Ação inválida." }, 400);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error("Erro ao chamar o Gemini:", errorMessage);
-      return jsonResponse({ error: "Não foi possível gerar o conteúdo." }, 502);
+      const isImageRequest = body.action === "image";
+      const secrets = [
+        process.env.GEMINI_API_KEY?.trim(),
+        process.env.CLOUDFLARE_API_TOKEN?.trim(),
+      ].filter((secret): secret is string => Boolean(secret));
+      const errorMessage = secrets.reduce(
+        (message, secret) => message.replaceAll(secret, "[REDACTED]"),
+        getErrorMessage(error),
+      );
+      const publicError = getPublicGenerationError(error, isImageRequest);
+      console.error(`Erro ao chamar ${isImageRequest ? "Cloudflare" : "Gemini"}:`, errorMessage);
+      return jsonResponse({
+        error: publicError.message,
+        code: publicError.code,
+      }, publicError.status);
     }
   },
 };

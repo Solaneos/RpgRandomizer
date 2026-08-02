@@ -19,11 +19,18 @@ export class ApiPost {
     monsterName,
     environment,
     prompt,
+    onTextGenerated,
   }: {
     monsterName: string;
     environment: string;
     prompt: string;
-  }): Promise<{ text: string; imageBase64: string | null }> {
+    onTextGenerated?: (text: string) => void;
+  }): Promise<{
+    text: string;
+    imageBase64: string | null;
+    imageMimeType?: string;
+    imageError?: string;
+  }> {
     if (!prompt.trim()) {
       return { text: "", imageBase64: null };
     }
@@ -47,6 +54,7 @@ export class ApiPost {
         }
 
         const result = await getMonsterFlavorText(finalPrompt, this.apiKey);
+        if (result) onTextGenerated?.(result);
         return {
           text: result || "Não foi possível gerar o texto com a OpenAI.",
           imageBase64: null,
@@ -62,21 +70,32 @@ export class ApiPost {
         };
       }
 
+      onTextGenerated?.(text);
+
       let imageBase64: string | null = null;
+      let imageMimeType: string | undefined;
+      let imageError: string | undefined;
 
       if (this.tryImageGeneration) {
         try {
-          imageBase64 = await generateMonsterEncounterImage(monsterName, text);
-        } catch (imgError) {
-          console.warn("Erro ao gerar imagem com Gemini:", imgError);
+          const image = await generateMonsterEncounterImage(monsterName, text);
+          imageBase64 = image?.base64 ?? null;
+          imageMimeType = image?.mimeType;
+        } catch (error: unknown) {
+          imageError = error instanceof Error
+            ? error.message
+            : "Não foi possível gerar a imagem com o Gemini.";
+          console.warn("Erro ao gerar imagem com Gemini:", imageError);
         }
       }
 
       return {
         text,
         imageBase64,
+        imageMimeType,
+        imageError,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erro na geração de texto:", error);
       return {
         text: "Erro ao gerar texto. Verifique sua conexão ou chave de API.",

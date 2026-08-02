@@ -42,29 +42,24 @@ export async function generateMonsterEncounterText(
 export async function generateMonsterEncounterImage(
   monsterName: string,
   description: string,
-  inputImage?: {
-    base64: string;
-    mimeType: string;
-  }
-): Promise<string | null> {
+): Promise<{ base64: string; mimeType: string } | null> {
   if (!description.trim() || !monsterName.trim()) {
     console.warn("Descrição ou nome do monstro ausente para geração de imagem.");
     return null;
   }
 
-  try {
-    const response = await postToGemini<{ imageBase64: string }>({
-      action: "image",
-      monsterName,
-      description,
-      inputImage,
-    });
-    return response.imageBase64 || null;
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : error;
-    console.error("Erro ao gerar imagem com Gemini:", errorMessage);
-    return null;
-  }
+  const response = await postToGemini<{ imageBase64: string; mimeType: string }>({
+    action: "image",
+    monsterName,
+    description,
+  });
+
+  if (!response.imageBase64) return null;
+
+  return {
+    base64: response.imageBase64,
+    mimeType: response.mimeType || "image/jpeg",
+  };
 }
 
 

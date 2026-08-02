@@ -41,6 +41,7 @@ const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey }) => {
   const [hideAnimals, setHideAnimals] = useState(false);
   const [hideDragons, setHideDragons] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
   const [localTryImageGen, setLocalTryImageGen] = useState(false);
   const [downloadImage, setDownloadImage] = useState(false);
 
@@ -53,6 +54,7 @@ const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey }) => {
     setLoading(true);
     setFlavorText(null);
     setGeneratedImage(null);
+    setImageError(null);
 
     const filteredMonsters = monstersList.filter((monster) => {
       const environmentsForMonster = monsterEnvironments[monster.index] || [];
@@ -85,18 +87,23 @@ const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey }) => {
       monsterName: translate(monsterNames, details.name),
       environment: selectedEnvironment,
       prompt: promptInput,
+      onTextGenerated: setFlavorText,
     });
 
     setFlavorText(result.text);
+    setImageError(result.imageError ?? null);
 
     if (result.imageBase64) {
-      setGeneratedImage(`data:image/png;base64,${result.imageBase64}`);
+      const imageMimeType = result.imageMimeType || "image/jpeg";
+      setGeneratedImage(`data:${imageMimeType};base64,${result.imageBase64}`);
     }
 
     if (result.imageBase64 && downloadImage) {
+      const imageMimeType = result.imageMimeType || "image/jpeg";
+      const imageExtension = imageMimeType === "image/png" ? "png" : "jpg";
       const link = document.createElement("a");
-      link.href = `data:image/png;base64,${result.imageBase64}`;
-      link.download = `${monster.index}_gemini.png`;
+      link.href = `data:${imageMimeType};base64,${result.imageBase64}`;
+      link.download = `${monster.index}_cloudflare.${imageExtension}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -136,7 +143,7 @@ const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey }) => {
             checked={localTryImageGen}
             onChange={(e) => setLocalTryImageGen(e.target.checked)}
           />
-          Gerar Imagem Gemini
+          Gerar Imagem Cloudflare
         </label>
 
         {localTryImageGen && (
@@ -254,6 +261,12 @@ const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey }) => {
                 objectFit: "contain",
               }}
             />
+          )}
+
+          {imageError && (
+            <p style={{ color: "#8b0000", fontWeight: 700 }}>
+              Imagem não gerada: {imageError}
+            </p>
           )}
 
           {!generatedImage && (
