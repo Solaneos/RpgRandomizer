@@ -41,18 +41,16 @@ export async function generateMonsterEncounterText(
 
 export async function generateMonsterEncounterImage(
   monsterName: string,
-  description: string,
   scenario: string,
 ): Promise<{ base64: string; mimeType: string } | null> {
-  if (!description.trim() || !monsterName.trim()) {
-    console.warn("Descrição ou nome do monstro ausente para geração de imagem.");
+  if (!scenario.trim() || !monsterName.trim()) {
+    console.warn("Cenário ou nome do monstro ausente para geração de imagem.");
     return null;
   }
 
   const response = await postToGemini<{ imageBase64: string; mimeType: string }>({
     action: "image",
     monsterName,
-    description,
     scenario,
   });
 

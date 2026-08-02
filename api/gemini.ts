@@ -5,7 +5,6 @@ const CLOUDFLARE_IMAGE_MODEL = "@cf/black-forest-labs/flux-1-schnell";
 const GEMINI_TEXT_MAX_OUTPUT_TOKENS = 768;
 const MAX_MONSTER_NAME_LENGTH = 120;
 const MAX_PROMPT_LENGTH = 4_000;
-const MAX_DESCRIPTION_LENGTH = 8_000;
 const CLOUDFLARE_IMAGE_PROMPT_MAX_LENGTH = 2_048;
 const CLOUDFLARE_IMAGE_STEPS = 4;
 
@@ -191,52 +190,17 @@ Escreva somente dois parágrafos curtos, entre 120 e 180 palavras no total. Term
   return geminiResponse.text?.trim() || null;
 }
 
-function buildCloudflareImagePrompt(
-  monsterName: string,
-  scenario: string,
-  description: string,
-): string {
-  const prefix = `Create a cinematic dark-fantasy tabletop RPG encounter illustration.
-Main creature: ${monsterName}.
-Encounter scenario and environment (must be clearly represented): `;
-  const separator = `
-Creature appearance and behavior: `;
-  const suffix = `
-Keep the creature as the main subject, but visibly preserve the location, atmosphere, lighting, objects and action specified by the encounter scenario. Do not replace the requested setting with a generic background. Full-body creature when possible, highly detailed anatomy, dramatic composition, no text, no labels, no interface.`;
-  const availableLength = Math.max(
-    0,
-    CLOUDFLARE_IMAGE_PROMPT_MAX_LENGTH - prefix.length - separator.length - suffix.length,
-  );
-
-  let scenarioLength = Math.min(scenario.length, Math.floor(availableLength * 0.4));
-  let descriptionLength = Math.min(description.length, availableLength - scenarioLength);
-  let remainingLength = availableLength - scenarioLength - descriptionLength;
-
-  const additionalScenarioLength = Math.min(
-    remainingLength,
-    scenario.length - scenarioLength,
-  );
-  scenarioLength += additionalScenarioLength;
-  remainingLength -= additionalScenarioLength;
-  descriptionLength += Math.min(
-    remainingLength,
-    description.length - descriptionLength,
-  );
-
-  return `${prefix}${scenario.slice(0, scenarioLength)}${separator}${description.slice(0, descriptionLength)}${suffix}`;
-}
-
 async function generateImage(
   body: JsonRecord,
   accountId: string,
   apiToken: string,
 ): Promise<{ base64: string; mimeType: string } | null | undefined> {
   const monsterName = readRequiredString(body, "monsterName", MAX_MONSTER_NAME_LENGTH);
-  const description = readRequiredString(body, "description", MAX_DESCRIPTION_LENGTH);
   const scenario = readRequiredString(body, "scenario", MAX_PROMPT_LENGTH);
-  if (!monsterName || !description || !scenario) return undefined;
+  if (!monsterName || !scenario) return undefined;
 
-  const prompt = buildCloudflareImagePrompt(monsterName, scenario, description);
+  const prompt = `Ilustração de um encontro para RPG de mesa, ambientada em um mundo de fantasia medieval, sem elementos modernos e sem texto na imagem. Monstro: ${monsterName}. Descrição da cena: ${scenario}`
+    .slice(0, CLOUDFLARE_IMAGE_PROMPT_MAX_LENGTH);
 
   const cloudflareResponse = await fetch(
     `https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(accountId)}/ai/run/${CLOUDFLARE_IMAGE_MODEL}`,

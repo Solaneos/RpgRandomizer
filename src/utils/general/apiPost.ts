@@ -81,7 +81,6 @@ export class ApiPost {
         try {
           const image = await generateMonsterEncounterImage(
             monsterName,
-            text,
             imageScenario,
           );
           imageBase64 = image?.base64 ?? null;
