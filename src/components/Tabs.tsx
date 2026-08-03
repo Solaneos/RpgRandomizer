@@ -2,26 +2,27 @@ import React, { useState } from 'react';
 import TabMonstros from '../tabs/TabMonstros';
 import TabHumanos from '../tabs/TabHumanos';
 import TabHumanosIA from '../tabs/TabHumanosIA';
+import TabCidades from '../tabs/TabCidades';
+import TabCidadesIA from '../tabs/TabCidadesIA';
 import TabNomes from '../tabs/TabNomes';
 
 const Tabs: React.FC = () => {
-  const [apiKey, setApiKey] = useState('');
-  const [activeTab, setActiveTab] = useState<'monstros' | 'humanos' | 'ia' | 'nomes'>('monstros');
-  const [useOpenAI, setUseOpenAI] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<'monstros' | 'humanos' | 'ia' | 'cidades' | 'cidades-ia' | 'nomes'>('monstros');
 
   const tabStyle = (tab: string) => ({
     padding: '8px 16px',
     marginRight: '8px',
     borderRadius: '8px',
-    border: activeTab === tab ? '1px solid white' : 'none',
-    fontWeight: activeTab === tab ? 'bold' : 'normal',
+    border: activeTab === tab ? '1px solid white' : '1px solid transparent',
+    fontWeight: 600,
     backgroundColor: activeTab === tab ? '#1a1a1a' : 'transparent',
     color: '#fff',
     cursor: 'pointer',
     fontSize: '18px',
     fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
     whiteSpace: 'nowrap',
-    transition: 'all 0.2s',
+    boxSizing: 'border-box' as const,
+    transition: 'background-color 0.2s, border-color 0.2s',
   });
 
   return (
@@ -35,74 +36,20 @@ const Tabs: React.FC = () => {
           whiteSpace: 'nowrap',
         }}
       >
-        <button style={tabStyle('monstros')} onClick={() => setActiveTab('monstros')}>Monstros</button>
-        <button style={tabStyle('humanos')} onClick={() => setActiveTab('humanos')}>Humanos</button>
-        <button style={tabStyle('ia')} onClick={() => setActiveTab('ia')}>Humanos IA</button>
-        <button style={tabStyle('nomes')} onClick={() => setActiveTab('nomes')}>Nomes</button>
-      </div>
-
-      <div
-        style={{
-          padding: '16px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '12px',
-          fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <label htmlFor="useOpenAICheckbox" style={{
-            color: '#fff',
-            fontSize: '16px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-          }}>
-            <input
-              type="checkbox"
-              id="useOpenAICheckbox"
-              checked={useOpenAI}
-              onChange={(e) => setUseOpenAI(e.target.checked)}
-              style={{
-                width: '24px',
-                height: '24px',
-                borderRadius: '6px',
-                border: '2px solid #555',
-                backgroundColor: useOpenAI ? '#4CAF50' : '#222',
-                cursor: 'pointer',
-              }}
-            />
-            Usar OpenAI
-          </label>
-
-          <input
-            type="text"
-            placeholder="Cole sua API Key da OpenAI"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            disabled={!useOpenAI}
-            style={{
-              width: '100%',
-              maxWidth: '400px',
-              padding: '8px',
-              fontSize: '16px',
-              borderRadius: '8px',
-              backgroundColor: '#000',
-              color: '#fff',
-              border: '1px solid #555',
-              opacity: useOpenAI ? 1 : 0.6,
-              cursor: useOpenAI ? 'text' : 'not-allowed',
-              transition: 'opacity 0.3s',
-            }}
-          />
-        </div>
+        <button className="tab-button" type="button" aria-pressed={activeTab === 'monstros'} style={tabStyle('monstros')} onClick={() => setActiveTab('monstros')}>Monstros</button>
+        <button className="tab-button" type="button" aria-pressed={activeTab === 'humanos'} style={tabStyle('humanos')} onClick={() => setActiveTab('humanos')}>Humanos</button>
+        <button className="tab-button" type="button" aria-pressed={activeTab === 'ia'} style={tabStyle('ia')} onClick={() => setActiveTab('ia')}>Humanos IA</button>
+        <button className="tab-button" type="button" aria-pressed={activeTab === 'cidades'} style={tabStyle('cidades')} onClick={() => setActiveTab('cidades')}>Cidades</button>
+        <button className="tab-button" type="button" aria-pressed={activeTab === 'cidades-ia'} style={tabStyle('cidades-ia')} onClick={() => setActiveTab('cidades-ia')}>Cidades IA</button>
+        <button className="tab-button" type="button" aria-pressed={activeTab === 'nomes'} style={tabStyle('nomes')} onClick={() => setActiveTab('nomes')}>Nomes</button>
       </div>
 
       <div style={{ padding: '24px' }}>
-        {activeTab === 'monstros' && <TabMonstros useOpenAI={useOpenAI} apiKey={apiKey} />}
-        {activeTab === 'humanos' && <TabHumanos useOpenAI={useOpenAI} apiKey={apiKey} />}
-        {activeTab === 'ia' && <TabHumanosIA useOpenAI={useOpenAI} apiKey={apiKey} />}
+        {activeTab === 'monstros' && <TabMonstros useOpenAI={false} />}
+        {activeTab === 'humanos' && <TabHumanos useOpenAI={false} />}
+        {activeTab === 'ia' && <TabHumanosIA />}
+        {activeTab === 'cidades' && <TabCidades />}
+        {activeTab === 'cidades-ia' && <TabCidadesIA />}
         {activeTab === 'nomes' && <TabNomes />}
       </div>
     </div>
