@@ -6,10 +6,12 @@ import TabCidades from '../tabs/TabCidades';
 import TabCidadesIA from '../tabs/TabCidadesIA';
 import TabNomes from '../tabs/TabNomes';
 
-const Tabs: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'monstros' | 'humanos' | 'ia' | 'cidades' | 'cidades-ia' | 'nomes'>('monstros');
+type TabId = 'monstros' | 'humanos' | 'ia' | 'cidades' | 'cidades-ia' | 'nomes';
 
-  const tabStyle = (tab: string) => ({
+const Tabs: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<TabId>('monstros');
+
+  const tabStyle = (tab: TabId) => ({
     padding: '8px 16px',
     marginRight: '8px',
     borderRadius: '8px',
@@ -23,6 +25,10 @@ const Tabs: React.FC = () => {
     whiteSpace: 'nowrap',
     boxSizing: 'border-box' as const,
     transition: 'background-color 0.2s, border-color 0.2s',
+  });
+
+  const panelStyle = (tab: TabId): React.CSSProperties => ({
+    display: activeTab === tab ? 'block' : 'none',
   });
 
   return (
@@ -45,12 +51,24 @@ const Tabs: React.FC = () => {
       </div>
 
       <div style={{ padding: '24px' }}>
-        {activeTab === 'monstros' && <TabMonstros useOpenAI={false} />}
-        {activeTab === 'humanos' && <TabHumanos useOpenAI={false} />}
-        {activeTab === 'ia' && <TabHumanosIA />}
-        {activeTab === 'cidades' && <TabCidades />}
-        {activeTab === 'cidades-ia' && <TabCidadesIA />}
-        {activeTab === 'nomes' && <TabNomes />}
+        <div style={panelStyle('monstros')} aria-hidden={activeTab !== 'monstros'}>
+          <TabMonstros useOpenAI={false} />
+        </div>
+        <div style={panelStyle('humanos')} aria-hidden={activeTab !== 'humanos'}>
+          <TabHumanos useOpenAI={false} />
+        </div>
+        <div style={panelStyle('ia')} aria-hidden={activeTab !== 'ia'}>
+          <TabHumanosIA />
+        </div>
+        <div style={panelStyle('cidades')} aria-hidden={activeTab !== 'cidades'}>
+          <TabCidades />
+        </div>
+        <div style={panelStyle('cidades-ia')} aria-hidden={activeTab !== 'cidades-ia'}>
+          <TabCidadesIA />
+        </div>
+        <div style={panelStyle('nomes')} aria-hidden={activeTab !== 'nomes'}>
+          <TabNomes />
+        </div>
       </div>
     </div>
   );
