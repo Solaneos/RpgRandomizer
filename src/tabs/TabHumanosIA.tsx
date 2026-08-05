@@ -3,6 +3,7 @@ import {
   generateHumanEnemyGroup,
   GeneratedHumanEnemyGroup,
 } from "../api/geminiAI";
+import { saveHistoryInBackground } from "../api/history";
 import {
   Grupo,
   NivelMagico,
@@ -71,6 +72,19 @@ const TabHumanosIA: React.FC = () => {
         context: contexto,
       });
       setResultado(grupoGerado);
+      saveHistoryInBackground({
+        type: "human-group-ai",
+        title: grupoGerado.nomeDoGrupo,
+        input: {
+          groupType: grupo,
+          technologyLevel: nivelTecnologico,
+          magicLevel: nivelMagico,
+          quantity: quantidade,
+          difficulty: nivel,
+          context: contexto,
+        },
+        result: { ...grupoGerado },
+      });
     } catch (error: unknown) {
       setErro(error instanceof Error ? error.message : "Não foi possível gerar o grupo com o Gemini.");
     } finally {

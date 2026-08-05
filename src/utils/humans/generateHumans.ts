@@ -127,7 +127,7 @@ export function gerarHumanos(
         const ordem = ['Baixo', 'Medio', 'Alto', 'Muito Alto'];
         return ordem.indexOf(key) <= ordem.indexOf(tecnologia);
       })
-      .flatMap(([_, armas]) => armas);
+      .flatMap(([, armas]) => armas);
 
     const armasPossiveis = armasDoGrupo.filter((a) => armasTec.includes(a));
     const armasSelecionadas = [randomItem(armasPossiveis)];

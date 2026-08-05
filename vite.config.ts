@@ -2,14 +2,20 @@ import { Buffer } from 'node:buffer'
 import { defineConfig, loadEnv, Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import geminiHandler from './api/gemini'
+import historyHandler from './api/history'
 
-function localGeminiApi(): Plugin {
+function localApiHandlers(): Plugin {
   return {
-    name: 'local-gemini-api',
+    name: 'local-api-handlers',
     configureServer(server) {
       server.middlewares.use(async (request, response, next) => {
         const pathname = request.url?.split('?', 1)[0]
-        if (pathname !== '/api/gemini') {
+        const handler = pathname === '/api/gemini'
+          ? geminiHandler
+          : pathname === '/api/history'
+            ? historyHandler
+            : null
+        if (!handler) {
           next()
           return
         }
@@ -37,13 +43,13 @@ function localGeminiApi(): Plugin {
             body: method === 'GET' || method === 'HEAD' || !requestBody ? undefined : requestBody,
           })
 
-          const webResponse = await geminiHandler.fetch(webRequest)
+          const webResponse = await handler.fetch(webRequest)
           response.statusCode = webResponse.status
           webResponse.headers.forEach((value, name) => response.setHeader(name, value))
           response.end(Buffer.from(await webResponse.arrayBuffer()))
         } catch (error: unknown) {
           server.config.logger.error(
-            `Erro ao executar a API local do Gemini: ${error instanceof Error ? error.message : String(error)}`,
+            `Erro ao executar a API local: ${error instanceof Error ? error.message : String(error)}`,
           )
           response.statusCode = 500
           response.setHeader('Content-Type', 'application/json')
@@ -64,6 +70,6 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
-    plugins: [react(), localGeminiApi()],
+    plugins: [react(), localApiHandlers()],
   }
 })

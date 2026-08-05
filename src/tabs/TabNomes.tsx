@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { saveHistoryInBackground } from '../api/history';
 import { gerarNomeAleatorio } from '../utils/humans/nomeGenerator.ts';
 
 const labelStyle: React.CSSProperties = {
@@ -29,6 +30,12 @@ const TabNomes: React.FC = () => {
   const gerarNome = () => {
     const nome = gerarNomeAleatorio(estilo, genero, incluirSobrenome);
     setNomeGerado(nome);
+    saveHistoryInBackground({
+      type: 'name',
+      title: nome,
+      input: { style: estilo, gender: genero, includeSurname: incluirSobrenome },
+      result: { nome },
+    });
   };
 
   return (

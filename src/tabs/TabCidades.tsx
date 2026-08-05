@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { saveHistoryInBackground } from "../api/history";
 import CityResultCard from "../components/CityResultCard";
 import {
   cityEnvironmentOptions,
@@ -37,7 +38,14 @@ function TabCidades() {
   const [cidade, setCidade] = useState<GeneratedCity | null>(null);
 
   const handleGenerate = () => {
-    setCidade(generateCity({ size: porte, environment: ambiente, theme: estilo }));
+    const generatedCity = generateCity({ size: porte, environment: ambiente, theme: estilo });
+    setCidade(generatedCity);
+    saveHistoryInBackground({
+      type: "city",
+      title: generatedCity.nome,
+      input: { size: porte, environment: ambiente, theme: estilo },
+      result: { ...generatedCity },
+    });
   };
 
   return (

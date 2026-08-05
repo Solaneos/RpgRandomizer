@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { saveHistoryInBackground } from '../api/history';
 import { gerarHumanos, Grupo, NivelTecnologico, NivelMagico } from '../utils/humans/generateHumans';
 
 interface TabProps {
@@ -41,8 +42,20 @@ const TabHumanos: React.FC<TabProps> = () => {
       setErro('')
       const gerados = gerarHumanos(grupo, nivelTecnologico, nivelMagico, quantidade, nivel);
       setResultado(gerados);
-    } catch (err: any){
-      setErro(err.message);
+      saveHistoryInBackground({
+        type: 'human-group',
+        title: `${grupo} (${gerados.length})`,
+        input: {
+          groupType: grupo,
+          technologyLevel: nivelTecnologico,
+          magicLevel: nivelMagico,
+          quantity: quantidade,
+          difficulty: nivel,
+        },
+        result: gerados,
+      });
+    } catch (err: unknown){
+      setErro(err instanceof Error ? err.message : 'Não foi possível gerar o grupo.');
       setResultado([]);
     }
   };

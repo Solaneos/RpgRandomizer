@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { generateCityWithAI } from "../api/geminiAI";
+import { saveHistoryInBackground } from "../api/history";
 import CityResultCard from "../components/CityResultCard";
 import {
   cityEnvironmentOptions,
@@ -52,6 +53,12 @@ function TabCidadesIA() {
         details: detalhes,
       });
       setCidade(generatedCity);
+      saveHistoryInBackground({
+        type: "city-ai",
+        title: generatedCity.nome,
+        input: { size: porte, environment: ambiente, theme: estilo, details: detalhes },
+        result: { ...generatedCity },
+      });
     } catch (error: unknown) {
       setErro(error instanceof Error ? error.message : "Não foi possível gerar a cidade com o Gemini.");
     } finally {

@@ -5,8 +5,9 @@ import TabHumanosIA from '../tabs/TabHumanosIA';
 import TabCidades from '../tabs/TabCidades';
 import TabCidadesIA from '../tabs/TabCidadesIA';
 import TabNomes from '../tabs/TabNomes';
+import TabHistorico from '../tabs/TabHistorico';
 
-type TabId = 'monstros' | 'humanos' | 'ia' | 'cidades' | 'cidades-ia' | 'nomes';
+type TabId = 'monstros' | 'humanos' | 'ia' | 'cidades' | 'cidades-ia' | 'nomes' | 'historico';
 
 const Tabs: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabId>('monstros');
@@ -48,6 +49,7 @@ const Tabs: React.FC = () => {
         <button className="tab-button" type="button" aria-pressed={activeTab === 'cidades'} style={tabStyle('cidades')} onClick={() => setActiveTab('cidades')}>Cidades</button>
         <button className="tab-button" type="button" aria-pressed={activeTab === 'cidades-ia'} style={tabStyle('cidades-ia')} onClick={() => setActiveTab('cidades-ia')}>Cidades IA</button>
         <button className="tab-button" type="button" aria-pressed={activeTab === 'nomes'} style={tabStyle('nomes')} onClick={() => setActiveTab('nomes')}>Nomes</button>
+        <button className="tab-button" type="button" aria-pressed={activeTab === 'historico'} style={tabStyle('historico')} onClick={() => setActiveTab('historico')}>Histórico</button>
       </div>
 
       <div style={{ padding: '24px' }}>
@@ -68,6 +70,9 @@ const Tabs: React.FC = () => {
         </div>
         <div style={panelStyle('nomes')} aria-hidden={activeTab !== 'nomes'}>
           <TabNomes />
+        </div>
+        <div style={panelStyle('historico')} aria-hidden={activeTab !== 'historico'}>
+          <TabHistorico active={activeTab === 'historico'} />
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ import { monsterNames } from "../utils/monsters/monsterNames";
 import { monsterEnvironments } from "../utils/monsters/monsterEnviroments";
 import { environments, Environment, monsterTypes } from "../utils/monsters/list";
 import { ApiPost } from "../utils/general/apiPost";
+import { saveHistoryInBackground } from "../api/history";
 
 interface TabProps {
   apiKey?: string;
@@ -108,6 +109,39 @@ const TabMonstros: React.FC<TabProps> = ({ useOpenAI, apiKey }) => {
       link.click();
       document.body.removeChild(link);
     }
+
+    const translatedMonsterName = translate(monsterNames, details.name);
+    saveHistoryInBackground({
+      type: "monster",
+      title: translatedMonsterName,
+      input: {
+        environment: selectedEnvironment,
+        prompt: promptInput,
+        hideHumans,
+        hideAnimals,
+        hideDragons,
+        imageRequested: localTryImageGen,
+      },
+      result: {
+        monster: {
+          index: details.index,
+          name: translatedMonsterName,
+          originalName: details.name,
+          size: details.size,
+          type: details.type,
+          alignment: details.alignment,
+          armorClass: details.armor_class,
+          hitPoints: details.hit_points,
+          hitDice: details.hit_dice,
+          challengeRating: details.challenge_rating,
+          strength: details.strength,
+          dexterity: details.dexterity,
+          speed: details.speed,
+        },
+        description: result.text,
+        imageGenerated: Boolean(result.imageBase64),
+      },
+    });
 
     setLoading(false);
   };

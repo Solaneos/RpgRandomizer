@@ -5,6 +5,7 @@ interface CityResultCardProps {
   city: GeneratedCity;
   onGenerateAgain: () => void;
   generateAgainLabel?: string;
+  showGenerateAgain?: boolean;
 }
 
 const sectionStyle: React.CSSProperties = {
@@ -21,6 +22,7 @@ function CityResultCard({
   city,
   onGenerateAgain,
   generateAgainLabel = "GERAR OUTRA CIDADE",
+  showGenerateAgain = true,
 }: CityResultCardProps) {
   return (
     <article
@@ -139,9 +141,11 @@ function CityResultCard({
         <ol>{city.ganchos.map((hook, index) => <li key={`${hook}-${index}`}>{hook}</li>)}</ol>
       </section>
 
-      <button className="btn-generate" type="button" onClick={onGenerateAgain} style={{ marginTop: "24px" }}>
-        {generateAgainLabel}
-      </button>
+      {showGenerateAgain && (
+        <button className="btn-generate" type="button" onClick={onGenerateAgain} style={{ marginTop: "24px" }}>
+          {generateAgainLabel}
+        </button>
+      )}
     </article>
   );
 }
